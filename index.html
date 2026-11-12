@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Академія детективів ШІ-пошуку — навчальний тренажер, 9 клас</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;800&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0d1024; --panel:#161a36; --panel2:#1e2347; --line:#2c3263; --deep:#0f1330;
+    --text:#eef0ff; --muted:#a3a8d6;
+    --mint:#3ef0b5; --violet:#9b7bff; --pink:#ff6fae; --amber:#ffc857; --red:#ff5d6c; --sky:#5cc8ff;
+    --radius:18px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{
+    font-family:"Manrope",system-ui,sans-serif;color:var(--text);background:var(--bg);
+    background-image:
+      radial-gradient(900px 500px at 10% -10%, rgba(155,123,255,.22), transparent 60%),
+      radial-gradient(700px 500px at 110% 10%, rgba(62,240,181,.14), transparent 60%),
+      linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px);
+    background-size:auto,auto,32px 32px,32px 32px;
+    min-height:100vh;line-height:1.55;font-size:17px;
+  }
+  .wrap{max-width:900px;margin:0 auto;padding:22px 16px 60px}
+  h1,h2,h3{font-family:"Unbounded",sans-serif;margin:0;line-height:1.2}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:26px;box-shadow:0 20px 50px rgba(0,0,0,.35)}
+  .hidden{display:none!important}
+  .muted{color:var(--muted)}
+  .btn{appearance:none;border:none;cursor:pointer;font:700 16px "Manrope";padding:13px 20px;border-radius:12px;color:#0b0d1d;background:var(--mint);transition:transform .12s,box-shadow .12s,opacity .12s}
+  .btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 8px 22px rgba(62,240,181,.3)}
+  .btn:disabled{opacity:.35;cursor:not-allowed}
+  .btn.ghost{background:transparent;color:var(--text);border:1px solid var(--line)}
+  .btn.ghost:hover:not(:disabled){box-shadow:none;border-color:var(--violet)}
+  .btn.violet{background:var(--violet);color:#fff}
+  .row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+  .spacer{flex:1}
+
+  /* HUD */
+  .hud{display:flex;align-items:center;gap:14px;margin-bottom:14px;flex-wrap:wrap}
+  .logo{font-family:"Unbounded";font-size:15px;font-weight:800}
+  .logo span{background:linear-gradient(90deg,var(--mint),var(--violet));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .xp{margin-left:auto;display:flex;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:6px 14px 6px 8px;font-weight:800}
+  .xp .star{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:var(--amber);color:#0b0d1d;font-size:15px}
+  .xp.pop{animation:pop .45s}
+  @keyframes pop{50%{transform:scale(1.15)}}
+  .map{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:18px}
+  .map button{cursor:pointer;border:1px solid var(--line);background:var(--panel);color:var(--muted);border-radius:12px;padding:8px 4px;font:700 12px "Manrope";display:flex;flex-direction:column;align-items:center;gap:2px;transition:border-color .12s}
+  .map button .e{font-size:20px;filter:grayscale(.6);opacity:.75}
+  .map button.done{border-color:rgba(62,240,181,.5);color:var(--mint)}
+  .map button.done .e{filter:none;opacity:1}
+  .map button.cur{background:var(--violet);border-color:var(--violet);color:#fff}
+  .map button.cur .e{filter:none;opacity:1}
+  @media (max-width:640px){.map button span.t{display:none}}
+
+  .mtag{display:inline-flex;gap:8px;align-items:center;font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--mint);background:rgba(62,240,181,.1);border:1px solid rgba(62,240,181,.35);padding:5px 12px;border-radius:999px;margin-bottom:12px}
+  .mission h2{font-size:clamp(22px,4vw,30px);margin-bottom:10px}
+  .mission .intro{color:#d4d7f5;margin:0 0 20px}
+  .goal{font-size:14.5px;color:var(--amber);font-weight:700;margin-bottom:16px}
+  .nav{margin-top:26px;border-top:1px solid var(--line);padding-top:18px}
+  .fade{animation:fade .35s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+  /* M0 start */
+  .hero h1{font-size:clamp(28px,6vw,44px);margin:16px 0 12px}
+  .hero h1 span{background:linear-gradient(90deg,var(--mint),var(--violet),var(--pink));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .stat{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:22px 0}
+  .stat div{background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:14px}
+  .stat b{display:block;font-family:"Unbounded";font-size:20px;color:var(--amber);margin-bottom:4px}
+  .stat small{color:var(--muted)}
+  @media (max-width:640px){.stat{grid-template-columns:1fr}}
+
+  /* M1 compare */
+  .qchips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+  .qchip{cursor:pointer;border:1px solid var(--line);background:var(--deep);color:var(--text);font:600 15px "Manrope";padding:10px 14px;border-radius:12px}
+  .qchip.on{border-color:var(--violet);background:rgba(155,123,255,.15)}
+  .searchbar{display:flex;align-items:center;gap:10px;background:var(--deep);border:1px solid var(--line);border-radius:14px;padding:12px 16px;margin-bottom:14px;font-weight:600}
+  .searchbar .cursor{width:2px;height:20px;background:var(--mint);animation:blink 1s infinite}
+  @keyframes blink{50%{opacity:0}}
+  .duo{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media (max-width:700px){.duo{grid-template-columns:1fr}}
+  .pane{border-radius:14px;padding:16px;border:1px solid var(--line);background:var(--panel2);min-height:220px}
+  .pane h3{font-size:14px;margin-bottom:12px;display:flex;gap:8px;align-items:center}
+  .link{padding:8px 0;border-bottom:1px dashed var(--line)}
+  .link:last-child{border:none}
+  .link .u{font-size:12.5px;color:var(--mint)}
+  .link .tt{color:var(--sky);font-weight:700;font-size:15px}
+  .link .sn{font-size:13.5px;color:var(--muted)}
+  .ai{font-size:15.5px}
+  .ai sup{color:var(--violet);font-weight:800}
+  .ai .srcs{margin-top:10px;font-size:13px;color:var(--muted)}
+  .typing::after{content:"▋";color:var(--violet);animation:blink 1s infinite}
+  .notice{margin-top:16px;border-radius:14px;padding:14px 16px;background:rgba(255,200,87,.08);border:1px solid rgba(255,200,87,.4)}
+  .notice b{color:var(--amber)}
+
+  /* M2 pipeline */
+  .pipe{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+  @media (max-width:700px){.pipe{grid-template-columns:1fr}}
+  .stepb{cursor:pointer;position:relative;text-align:center;border:1.5px solid var(--line);background:var(--panel2);border-radius:14px;padding:16px 8px;color:var(--text);font:700 14px "Manrope";transition:transform .12s,border-color .12s}
+  .stepb:hover{transform:translateY(-3px);border-color:var(--violet)}
+  .stepb .e{font-size:30px;display:block;margin-bottom:6px}
+  .stepb .n{position:absolute;top:8px;left:10px;font-family:"Unbounded";font-size:11px;color:var(--muted)}
+  .stepb.seen{border-color:var(--mint);background:rgba(62,240,181,.08)}
+  .stepb.on{border-color:var(--violet);background:rgba(155,123,255,.16)}
+  .explain{margin-top:16px;min-height:110px;border-radius:14px;padding:16px 18px;background:var(--deep);border:1px solid var(--line)}
+  .explain h3{font-size:16px;margin-bottom:6px;color:var(--violet)}
+  .secret{margin-top:16px;border-radius:14px;padding:14px 16px;background:rgba(255,111,174,.08);border:1px solid rgba(255,111,174,.45)}
+
+  /* flip cards */
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  @media (max-width:760px){.grid3{grid-template-columns:repeat(2,1fr)}}
+  @media (max-width:480px){.grid3{grid-template-columns:1fr}}
+  .flip{perspective:1000px;height:250px;cursor:pointer}
+  .flip .in{position:relative;width:100%;height:100%;transition:transform .55s;transform-style:preserve-3d}
+  .flip.open .in{transform:rotateY(180deg)}
+  .face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:16px;padding:16px;display:flex;flex-direction:column}
+  .front{align-items:center;justify-content:center;text-align:center;gap:10px}
+  .front .e{font-size:46px}
+  .front b{font-family:"Unbounded";font-size:15px}
+  .front small{color:var(--muted);font-size:12.5px}
+  .back{transform:rotateY(180deg);font-size:14.2px;overflow:auto;gap:8px}
+  .back b{font-family:"Unbounded";font-size:13.5px}
+  .back .ex{background:rgba(0,0,0,.25);border-radius:10px;padding:8px 10px}
+  .plus .front{background:linear-gradient(160deg,rgba(62,240,181,.2),var(--panel2));border:1.5px solid rgba(62,240,181,.45)}
+  .plus .back{background:#132a33;border:1.5px solid rgba(62,240,181,.45)}
+  .minus .front{background:linear-gradient(160deg,rgba(255,111,174,.2),var(--panel2));border:1.5px solid rgba(255,111,174,.45)}
+  .minus .back{background:#2e1530;border:1.5px solid rgba(255,111,174,.45)}
+  .shield{color:var(--mint);font-weight:700}
+  .counter{font-weight:700;color:var(--muted);font-size:14px}
+
+  /* M5 find traps */
+  .chat{background:var(--deep);border:1px solid var(--line);border-radius:16px;padding:18px}
+  .chat .who{display:flex;gap:10px;align-items:center;margin-bottom:12px;font-weight:700}
+  .chat .who .av{width:32px;height:32px;border-radius:10px;background:linear-gradient(135deg,var(--violet),var(--mint));display:grid;place-items:center}
+  .ask{background:var(--panel2);border-radius:12px;padding:10px 14px;margin-bottom:12px;font-size:15px;display:inline-block}
+  .sent{cursor:pointer;border-radius:6px;padding:2px 3px;transition:background .12s;box-decoration-break:clone;-webkit-box-decoration-break:clone}
+  .sent:hover{background:rgba(155,123,255,.18)}
+  .sent.mark{background:rgba(255,200,87,.25);outline:1px solid var(--amber)}
+  .sent.good{background:rgba(62,240,181,.18)}
+  .sent.bad{background:rgba(255,93,108,.25)}
+  .sent.miss{background:rgba(255,200,87,.25);outline:2px dashed var(--amber)}
+  .fb{margin-top:14px;display:grid;gap:8px}
+  .fb div{border-radius:12px;padding:10px 14px;font-size:15px;background:var(--panel2);border:1px solid var(--line)}
+  .fb .ok{border-color:rgba(62,240,181,.5)} .fb .no{border-color:rgba(255,93,108,.5)} .fb .ms{border-color:rgba(255,200,87,.5)}
+
+  /* M6 game */
+  .game{text-align:center}
+  .gstat{display:flex;justify-content:center;gap:16px;margin-bottom:16px;font-weight:700;flex-wrap:wrap}
+  .gstat span{background:var(--deep);border:1px solid var(--line);border-radius:999px;padding:6px 14px}
+  .gcard{max-width:520px;margin:0 auto;background:linear-gradient(160deg,var(--panel2),var(--deep));border:1.5px solid var(--line);border-radius:20px;padding:30px 22px;min-height:150px;display:grid;place-items:center;font-size:19px;font-weight:700;transition:transform .3s,border-color .2s}
+  .gcard.okk{border-color:var(--mint);transform:rotate(-1.5deg)}
+  .gcard.nok{border-color:var(--red);animation:shake .4s}
+  @keyframes shake{25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+  .gbtns{display:flex;justify-content:center;gap:12px;margin-top:18px;flex-wrap:wrap}
+  .gbtns .btn{min-width:170px}
+  .gbtns .btn.pinkb{background:var(--pink)}
+  .gexp{max-width:560px;margin:16px auto 0;border-radius:14px;padding:12px 16px;font-size:15.5px;text-align:left}
+  .gexp.okk{background:rgba(62,240,181,.1);border:1px solid rgba(62,240,181,.45)}
+  .gexp.nok{background:rgba(255,93,108,.1);border:1px solid rgba(255,93,108,.45)}
+
+  /* M7 */
+  .check{display:grid;gap:10px}
+  .ck{display:flex;gap:14px;align-items:flex-start;cursor:pointer;background:var(--panel2);border:1.5px solid var(--line);border-radius:14px;padding:14px 16px;transition:border-color .12s}
+  .ck .box{flex:none;width:28px;height:28px;border-radius:8px;border:2px solid var(--line);display:grid;place-items:center;font-weight:900;color:#0b0d1d}
+  .ck.on{border-color:var(--mint)}
+  .ck.on .box{background:var(--mint);border-color:var(--mint)}
+  .ck small{display:block;color:var(--muted);font-size:14px;margin-top:2px}
+  .golden{margin-top:18px;text-align:center;border-radius:18px;padding:22px;background:linear-gradient(135deg,rgba(155,123,255,.25),rgba(62,240,181,.18));border:1px solid rgba(155,123,255,.5)}
+  .golden .big{font-family:"Unbounded";font-size:clamp(18px,3.4vw,24px);margin-top:6px}
+  .finish{margin-top:18px;text-align:center}
+  .medal{font-size:64px;display:block;animation:pop 1s}
+  .confetti{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:50}
+  .confetti i{position:absolute;top:-20px;width:10px;height:14px;border-radius:2px;animation:fall linear forwards}
+  @keyframes fall{to{transform:translateY(110vh) rotate(720deg)}}
+  .toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(120px);background:var(--amber);color:#0b0d1d;font-weight:800;padding:12px 20px;border-radius:14px;box-shadow:0 10px 30px rgba(0,0,0,.4);transition:transform .35s;z-index:60}
+  .toast.show{transform:translateX(-50%) translateY(0)}
+  .footer{text-align:center;color:#6c72a8;font-size:13px;margin-top:26px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hud">
+    <div class="logo">🕵️ Академія <span>детективів ШІ-пошуку</span></div>
+    <div class="xp" id="xp"><span class="star">★</span><span id="xpv">0</span> XP</div>
+  </div>
+  <div class="map" id="map"></div>
+  <div id="stage"></div>
+  <div class="footer">Навчальний тренажер · Інформатика, 9 клас · Переваги та недоліки пошукових систем, керованих ШІ</div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const MISSIONS=[
+  {e:"🚀",t:"Старт"},
+  {e:"⚔️",t:"Два пошуки"},
+  {e:"⚙️",t:"Як це працює"},
+  {e:"💪",t:"Суперсили"},
+  {e:"🪤",t:"Пастки"},
+  {e:"🔎",t:"Знайди пастку"},
+  {e:"🎮",t:"Гра"},
+  {e:"🛡️",t:"Пам’ятка"}
+];
+// старт не відображаємо на мапі як окрему місію з нагородою
+let cur=0, xp=0, done=new Set();
+const $=id=>document.getElementById(id);
+const esc=s=>s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+function drawMap(){
+  $("map").innerHTML=MISSIONS.slice(1).map((m,k)=>{const i=k+1;
+    return `<button class="${i===cur?'cur':done.has(i)?'done':''}" data-i="${i}"><span class="e">${m.e}</span><span class="t">${m.t}</span></button>`}).join("");
+  $("map").querySelectorAll("button").forEach(b=>b.onclick=()=>go(+b.dataset.i));
+  $("map").style.display=cur===0?"none":"grid";
+}
+function addXP(n,msg){xp+=n;$("xpv").textContent=xp;const x=$("xp");x.classList.remove("pop");void x.offsetWidth;x.classList.add("pop");if(msg)toast(msg);}
+function toast(m){const t=$("toast");t.textContent=m;t.classList.add("show");clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove("show"),2300);}
+function complete(i,msg){if(done.has(i))return;done.add(i);addXP(20,msg||`🏅 Місію «${MISSIONS[i].t}» пройдено! +20 XP`);drawMap();const n=$("nextm");if(n)n.disabled=false;}
+function go(i){cur=i;drawMap();RENDER[i]();window.scrollTo({top:0,behavior:"smooth"});}
+function shell(i,title,intro,goal,body){
+  return `<section class="card mission fade"><span class="mtag">Місія ${i} з 7 · ${MISSIONS[i].e} ${MISSIONS[i].t}</span>
+    <h2>${title}</h2><p class="intro">${intro}</p>${goal?`<div class="goal">🎯 ${goal}</div>`:""}${body}
+    <div class="row nav"><button class="btn ghost" onclick="go(${i-1})">← Назад</button><span class="spacer"></span>
+    ${i<7?`<button class="btn" id="nextm" ${done.has(i)?'':'disabled'} onclick="go(${i+1})">Наступна місія →</button>`:""}</div></section>`;
+}
+
+/* ============ 0. СТАРТ ============ */
+function m0(){
+  $("stage").innerHTML=`<section class="card hero fade">
+    <span class="mtag">🎓 Інформатика · 9 клас · Навчальний режим</span>
+    <h1>Академія <span>детективів ШІ-пошуку</span></h1>
+    <p class="muted" style="font-size:18px;margin:0">Ти вже, мабуть, питав у чат-бота про домашку чи бачив, як Google сам складає відповідь угорі сторінки. Це пошук, керований штучним інтелектом. Він дуже зручний, але має свої пастки. У цьому тренажері ти навчишся бачити і те, і інше.</p>
+    <div class="stat">
+      <div><b>7 місій</b><small>пояснення, картки, детективна справа і гра</small></div>
+      <div><b>Без оцінок</b><small>помилятися можна, тут ти тренуєшся</small></div>
+      <div><b>XP і медаль</b><small>за кожну пройдену місію</small></div>
+    </div>
+    <button class="btn" onclick="go(1)">Розпочати навчання →</button>
+  </section>`;
+}
+
+/* ============ 1. ДВА ПОШУКИ ============ */
+const QUERIES=[
+  {q:"Чому небо блакитне?",
+   links:[["encyclopedia.example","Колір неба — Енциклопедія","Розсіювання Релея — явище розсіювання світла частинками, значно меншими за довжину хвилі…"],
+          ["physics-school.example","Фізика для школярів: оптика атмосфери","Сонячне світло складається з променів різних кольорів…"],
+          ["forum.example","Чому небо синє, а не фіолетове? — Форум","Питання від користувача: я читав, що фіолетового світла більше…"],
+          ["science-blog.example","10 цікавих фактів про небо","Факт №1: на Марсі вдень небо рудувате…"]],
+   ai:"Небо здається блакитним, бо сонячне світло, проходячи крізь атмосферу, розсіюється на молекулах повітря. Короткі хвилі (синій і фіолетовий кольори) розсіюються значно сильніше за червоні<sup>[1]</sup>. Фіолетового ми майже не помічаємо, бо наші очі до нього менш чутливі<sup>[2]</sup>.",
+   srcs:"[1] Енциклопедія · [2] Фізика для школярів"},
+  {q:"Як навчитися швидко друкувати?",
+   links:[["typing-trainer.example","Онлайн-клавіатурний тренажер — безкоштовно","Вправи для десятипальцевого друку з першого уроку…"],
+          ["blog-it.example","Сліпий друк за 30 днів: мій досвід","Перший тиждень було важко, але…"],
+          ["video.example","Як друкувати наосліп — відеоурок","Тривалість 18:42…"],
+          ["forum.example","Скільки часу вчитися сліпого друку?","Відповідей: 46…"]],
+   ai:"Щоб навчитися швидко друкувати, освой десятипальцевий метод: кожен палець «відповідає» за свої клавіші<sup>[1]</sup>. Тренуйся щодня по 15–20 хвилин на онлайн-тренажері, спочатку на точність, а потім на швидкість<sup>[2]</sup>. Намагайся не дивитися на клавіатуру.",
+   srcs:"[1] Клавіатурний тренажер · [2] Блог «Сліпий друк за 30 днів»"},
+  {q:"Хто виграв учорашній футбольний матч?",
+   links:[["sport-news.example","Результати матчів — оновлено 5 хв тому","Огляд усіх ігор туру, рахунки, відео голів…"],
+          ["live-score.example","Онлайн-табло футболу","Сьогодні · Вчора · Завтра…"],
+          ["club.example","Офіційний сайт клубу: звіт про матч","Головний тренер прокоментував…"],
+          ["forum.example","Обговорення матчу","Сторінка 12 з 40…"]],
+   ai:"Учорашній матч завершився перемогою господарів з рахунком 2:1<sup>[1]</sup>. Обидва голи забив нападник команди в другому таймі.",
+   srcs:"[1] Огляд матчу (опубліковано 14 місяців тому) ⚠️"}
+];
+let m1seen=new Set();
+function m1(){
+  const body=`<div class="qchips">${QUERIES.map((q,i)=>`<button class="qchip" data-i="${i}">${esc(q.q)}</button>`).join("")}</div>
+    <div class="searchbar">🔍 <span id="sq" class="muted">Обери запит угорі…</span><span class="cursor"></span></div>
+    <div class="duo">
+      <div class="pane"><h3>📄 Класичний пошук</h3><div id="pl" class="muted">Тут з’явиться список посилань</div></div>
+      <div class="pane"><h3>🤖 Пошук зі ШІ</h3><div id="pr" class="ai muted">Тут з’явиться готова відповідь</div></div>
+    </div>
+    <div id="m1note"></div>`;
+  $("stage").innerHTML=shell(1,"Два детективи: класичний пошук проти ШІ","Порівняй, як на одне й те саме запитання відповідають класичний пошуковик і пошук зі штучним інтелектом. Натисни на запит.","Спробуй усі 3 запити й порівняй відповіді.",body);
+  document.querySelectorAll(".qchip").forEach(b=>b.onclick=()=>showQ(+b.dataset.i));
+}
+let typer;
+function showQ(i){
+  const q=QUERIES[i];
+  document.querySelectorAll(".qchip").forEach(b=>b.classList.toggle("on",+b.dataset.i===i));
+  $("sq").textContent=q.q;$("sq").classList.remove("muted");
+  $("pl").classList.remove("muted");
+  $("pl").innerHTML=q.links.map(l=>`<div class="link"><div class="u">${l[0]}</div><div class="tt">${esc(l[1])}</div><div class="sn">${esc(l[2])}</div></div>`).join("");
+  const pr=$("pr");pr.classList.remove("muted");
+  const plain=q.ai;let n=0;clearInterval(typer);pr.classList.add("typing");
+  typer=setInterval(()=>{n+=4;if(n>=plain.length){clearInterval(typer);pr.classList.remove("typing");pr.innerHTML=plain+`<div class="srcs">Джерела: ${q.srcs}</div>`;return;}
+    pr.innerHTML=plain.slice(0,n).replace(/<[^>]*$/,"");},18);
+  m1seen.add(i);
+  const notes=[
+    "<b>Помітив?</b> Класичний пошук дає <b>список сайтів</b>, і читати їх доведеться самому. ШІ-пошук <b>сам прочитав кілька джерел і склав коротку відповідь</b> звичайною мовою. Це економить час!",
+    "<b>Зверни увагу:</b> ШІ не просто знайшов сторінки, а <b>узагальнив поради</b> з різних джерел в одну інструкцію. До того ж ти можеш одразу уточнити: «а для ноутбука?» Він пам’ятає, про що ви говорили.",
+    "<b>Обережно, пастка!</b> ШІ впевнено назвав рахунок, але його джерело опубліковане <b>14 місяців тому</b>. Відповідь звучить переконливо, а насправді вона <b>застаріла</b>. У класичному пошуку ти сам бачиш дату й обираєш свіже джерело."];
+  $("m1note").innerHTML=`<div class="notice fade">${notes[i]}</div>`;
+  if(m1seen.size===3)complete(1);
+}
+
+/* ============ 2. ЯК ЦЕ ПРАЦЮЄ ============ */
+const PIPE=[
+  ["💬","Запит","Ти пишеш запитання звичайною мовою, як другові: «Поясни простими словами, що таке алгоритм». Не треба підбирати ключові слова."],
+  ["🔍","Пошук джерел","Система, як і звичайний пошуковик, знаходить в інтернеті сторінки, що стосуються запитання."],
+  ["🧠","Аналіз","Мовна модель «читає» знайдені тексти та виокремлює головне. На цьому етапі вона може неправильно зрозуміти джерело або взяти ненадійне."],
+  ["✍️","Генерація","Модель складає відповідь слово за словом, обираючи найімовірніше наступне слово. Тому текст звучить гладко й упевнено, навіть якщо в ньому помилка."],
+  ["🔗","Відповідь + джерела","Ти отримуєш готовий текст, іноді з посиланнями. Посилання треба відкривати й перевіряти, бо вони не гарантують правдивості!"]];
+let m2seen=new Set();
+function m2(){
+  const body=`<div class="pipe">${PIPE.map((p,i)=>`<button class="stepb" data-i="${i}"><span class="n">${i+1}</span><span class="e">${p[0]}</span>${p[1]}</button>`).join("")}</div>
+    <div class="explain" id="exp"><span class="muted">👆 Натисни на крок, щоб дізнатися, що відбувається.</span></div>
+    <div class="secret hidden" id="sec">🤫 <b>Головний секрет:</b> ШІ не «знає» правду так, як людина. Він <b>передбачає, які слова найімовірніше мають іти далі</b>. Саме тому він може гарно й упевнено написати те, чого насправді не було. Це називають <b>галюцинацією ШІ</b>.</div>`;
+  $("stage").innerHTML=shell(2,"Що відбувається всередині ШІ-пошуку?","Між твоїм запитанням і відповіддю є 5 кроків. Розберися з кожним, і ти зрозумієш, звідки беруться і суперсили, і пастки.","Відкрий усі 5 кроків.",body);
+  document.querySelectorAll(".stepb").forEach(b=>b.onclick=()=>{
+    const i=+b.dataset.i;m2seen.add(i);
+    document.querySelectorAll(".stepb").forEach(x=>{x.classList.toggle("on",+x.dataset.i===i);x.classList.toggle("seen",m2seen.has(+x.dataset.i)&&+x.dataset.i!==i);});
+    $("exp").innerHTML=`<h3>${PIPE[i][0]} Крок ${i+1}: ${PIPE[i][1]}</h3>${PIPE[i][2]}`;
+    if(m2seen.size===5){$("sec").classList.remove("hidden");complete(2);}
+  });
+}
+
+/* ============ 3/4. КАРТКИ ============ */
+const PROS=[
+  ["⚡","Економія часу","Замість того щоб відкривати 10 сайтів, ти отримуєш коротку відповідь за кілька секунд.","Шукаєш, що таке фотосинтез: одна чітка відповідь замість довгих статей."],
+  ["🗣️","Запит звичайною мовою","Не треба підбирати ключові слова: можна питати так, як говориш.","«Поясни, як працює Wi-Fi, ніби мені 10 років»."],
+  ["🔄","Діалог і уточнення","Система пам’ятає попередні запитання й розуміє уточнення.","«А тепер наведи приклад» або «А коротше?»"],
+  ["🧩","Узагальнення джерел","ШІ збирає інформацію з багатьох сайтів і складає з неї одну відповідь.","Порівняння двох смартфонів за даними з різних оглядів."],
+  ["🎯","Відповідь під тебе","Можна попросити змінити рівень складності, стиль чи формат.","«Зроби таблицю» або «Склади план з 5 пунктів»."],
+  ["🌍","Подолання мовного бар’єру","ШІ знаходить англомовні джерела і пояснює їх українською.","Інформація з англійської наукової статті простою українською мовою."]];
+const CONS=[
+  ["👻","Галюцинації","ШІ може впевнено вигадати факт, цитату, книжку чи посилання.","Перевіряй факти щонайменше у 2–3 надійних джерелах."],
+  ["📅","Застарілі дані","Модель може не знати свіжих подій або спиратися на старі сторінки.","Дивись на дату джерела, а новини шукай на актуальних сайтах."],
+  ["⚖️","Упередженість","Відповідь може показувати лише одну точку зору або повторювати стереотипи.","Шукай різні погляди на суперечливі теми."],
+  ["🔗","Проблеми з джерелами","Посилань може не бути, вони можуть вести не туди або бути ненадійними.","Відкривай посилання й перевіряй, чи там справді таке написано."],
+  ["🔐","Ризик для приватності","Запити можуть зберігатися й аналізуватися компанією.","Не вводь паролі, адресу, телефон і особисті фото."],
+  ["🛋️","«Ледачий мозок»","Якщо все перекладати на ШІ, слабшають навички самостійного пошуку й мислення.","Використовуй ШІ як помічника, а висновки роби сам."]];
+function cards(i,list,cls,title,intro,lab1,lab2){
+  let opened=new Set();
+  const body=`<div class="row" style="margin-bottom:14px"><span class="counter" id="cnt">Відкрито: 0 / 6</span></div>
+    <div class="grid3">${list.map((c,k)=>`<div class="flip ${cls}" data-k="${k}"><div class="in">
+      <div class="face front"><span class="e">${c[0]}</span><b>${c[1]}</b><small>натисни, щоб перевернути</small></div>
+      <div class="face back"><b>${c[0]} ${c[1]}</b><div>${c[2]}</div><div class="ex">${lab1}${c[3]}</div></div></div></div>`).join("")}</div>`;
+  $("stage").innerHTML=shell(i,title,intro,"Переверни всі 6 карток.",body);
+  document.querySelectorAll(".flip").forEach(f=>f.onclick=()=>{f.classList.toggle("open");opened.add(+f.dataset.k);
+    $("cnt").textContent=`Відкрито: ${opened.size} / 6`;if(opened.size===6)complete(i);});
+}
+function m3(){cards(3,PROS,"plus","Суперсили ШІ-пошуку 💪","Ось за що люди люблять пошукові системи зі штучним інтелектом. Переверни кожну картку й подивись приклад.","📌 Приклад: ");}
+function m4(){cards(4,CONS,"minus","Пастки ШІ-пошуку 🪤","У кожної суперсили є зворотний бік. Переверни картки: на звороті ти побачиш, що це за пастка і <span class='shield'>як від неї захиститися</span>.","<span class='shield'>🛡 Захист:</span> ");}
+
+/* ============ 5. ЗНАЙДИ ПАСТКУ ============ */
+const SENT=[
+  {t:"МЕСМ (Мала електронна лічильна машина) створили в Києві під керівництвом академіка Сергія Лебедєва.",trap:false},
+  {t:"Її запустили в 1951 році, і вона стала однією з перших електронних обчислювальних машин у континентальній Європі.",trap:false},
+  {t:"МЕСМ важила лише 2 кілограми й легко вміщалася на письмовому столі.",trap:true,why:"👻 Галюцинація (фактична помилка). МЕСМ працювала на тисячах електронних ламп і займала цілу кімнату."},
+  {t:"Машина працювала на електронних лампах.",trap:false},
+  {t:"Тому всі сучасні комп’ютери світу є лише копіями МЕСМ, а інші розробки того часу не мали значення.",trap:true,why:"⚖️ Упередженість і перебільшення. Тоді над комп’ютерами працювали вчені в багатьох країнах. Внесок МЕСМ важливий, але не єдиний."},
+  {t:"Про це детально написано в книжці професора І. Петренка «Таємниці МЕСМ» (2019).",trap:true,why:"🔗 Вигадане джерело. Такі «переконливі» посилання з автором і роком ШІ часто генерує сам. Завжди перевіряй, чи книжка справді існує!"}];
+let marks=new Set(),checked=false;
+function m5(){
+  marks=new Set();checked=false;
+  const body=`<div class="chat">
+      <div class="ask">🙋 Розкажи коротко про перший комп’ютер в Україні</div>
+      <div class="who"><span class="av">🤖</span>ШІ-пошук</div>
+      <div id="txt" style="font-size:16.5px;line-height:1.85">${SENT.map((s,i)=>`<span class="sent" data-i="${i}">${esc(s.t)}</span> `).join("")}</div>
+    </div>
+    <div class="row" style="margin-top:14px"><span class="muted" id="mc">Позначено: 0</span><span class="spacer"></span>
+      <button class="btn ghost" id="rs">↺ Почати справу заново</button><button class="btn violet" id="chk">Перевірити 🔎</button></div>
+    <div class="fb" id="fb"></div>`;
+  $("stage").innerHTML=shell(5,"Детективна справа: знайди пастки 🔎","ШІ-пошук відповів на запитання. Схоже на правду, але в тексті сховано <b>3 пастки</b>. Натискай на речення, які здаються підозрілими, а потім натисни «Перевірити».","Знайди всі 3 пастки (можна з кількох спроб).",body);
+  document.querySelectorAll(".sent").forEach(s=>s.onclick=()=>{if(checked)return;const i=+s.dataset.i;
+    marks.has(i)?marks.delete(i):marks.add(i);s.classList.toggle("mark");$("mc").textContent="Позначено: "+marks.size;});
+  $("rs").onclick=m5;
+  $("chk").onclick=()=>{
+    if(checked)return; if(!marks.size){toast("Познач хоча б одне речення");return;} checked=true;
+    let found=0,fb="";
+    SENT.forEach((s,i)=>{const el=document.querySelector(`.sent[data-i="${i}"]`);el.classList.remove("mark");
+      if(s.trap&&marks.has(i)){found++;el.classList.add("good");fb+=`<div class="ok">✅ Знайдено! ${s.why}</div>`;}
+      else if(!s.trap&&marks.has(i)){el.classList.add("bad");fb+=`<div class="no">❌ «${esc(s.t.slice(0,45))}…» — це правда. Не кожне речення ШІ хибне, тож перевіряй, а не відкидай усе підряд.</div>`;}
+      else if(s.trap){el.classList.add("miss");}
+    });
+    if(found===3){fb=`<div class="ok"><b>🏆 Блискуче, детективе! Усі 3 пастки знайдено.</b></div>`+fb;complete(5);}
+    else fb=`<div class="ms">🔍 Знайдено ${found} з 3. Пропущені пастки підсвічено жовтою рамкою. Подумай, чому вони підозрілі, і натисни «Почати справу заново».</div>`+fb;
+    $("fb").innerHTML=fb;
+  };
+}
+
+/* ============ 6. ГРА ============ */
+const GAME=[
+  ["Відповідає за кілька секунд замість довгого перегляду сайтів","plus","Так! Економія часу — одна з головних переваг."],
+  ["Може назвати книжку, якої не існує","minus","Це галюцинація: ШІ впевнено вигадує факти."],
+  ["Розуміє запитання, написане звичайною розмовною мовою","plus","Саме так: не треба підбирати ключові слова."],
+  ["Може не знати про події останніх днів","minus","Це застарілі дані. Свіжі новини перевіряй на актуальних сайтах."],
+  ["Пам’ятає попереднє запитання і розуміє уточнення «а коротше?»","plus","Так, діалоговий режим — сильна сторона ШІ-пошуку."],
+  ["Запити користувачів можуть зберігатися компанією","minus","Ризик для приватності: не пиши в запитах особисті дані."],
+  ["Збирає інформацію з багатьох джерел в одну відповідь","plus","Узагальнення джерел — перевага, але джерела все одно варто відкрити."],
+  ["Може показати лише одну точку зору на суперечливу тему","minus","Це упередженість. Шукай різні погляди."],
+  ["Може пояснити англомовну статтю українською","plus","Так, ШІ допомагає долати мовний бар’єр."],
+  ["Якщо завжди питати ШІ, сам вчишся шукати гірше","minus","Так, звичка все перекладати на ШІ послаблює власні навички."]];
+let g={i:0,ok:0,streak:0,best:0,lock:false};
+function m6(){
+  g={i:0,ok:0,streak:0,best:0,lock:false};
+  $("stage").innerHTML=shell(6,"Гра «Перевага чи недолік?» 🎮","Читай твердження й швидко вирішуй: це перевага чи недолік ШІ-пошуку? Після кожної відповіді ти одразу побачиш пояснення.","Пройди всі 10 карток. Збирай серію правильних відповідей 🔥",`<div class="game" id="game"></div>`);
+  drawGame();
+}
+function drawGame(){
+  const G=$("game");
+  if(g.i>=GAME.length){
+    const msg=g.ok>=9?"🔥 Неймовірно! Ти справжній експерт!":g.ok>=7?"💪 Чудово! Ще трохи — і буде ідеально.":"🙂 Непогано! Пройди гру ще раз, щоб закріпити.";
+    G.innerHTML=`<div class="gcard" style="flex-direction:column">${msg}<div style="font-size:15px;color:var(--muted);margin-top:8px">Правильно: ${g.ok} з 10 · Найдовша серія: ${g.best} 🔥</div></div>
+      <div class="gbtns"><button class="btn ghost" onclick="m6()">↻ Зіграти ще раз</button></div>`;
+    complete(6);return;
+  }
+  const c=GAME[g.i];
+  G.innerHTML=`<div class="gstat"><span>Картка ${g.i+1} / 10</span><span>✅ ${g.ok}</span><span>🔥 Серія: ${g.streak}</span></div>
+    <div class="gcard" id="gc">${esc(c[0])}</div>
+    <div class="gbtns" id="gb"><button class="btn" data-v="plus">👍 Перевага</button><button class="btn pinkb" data-v="minus">👎 Недолік</button></div>
+    <div id="ge"></div>`;
+  g.lock=false;
+  G.querySelectorAll("#gb .btn").forEach(b=>b.onclick=()=>{
+    if(g.lock)return;g.lock=true;const ok=b.dataset.v===c[1];
+    if(ok){g.ok++;g.streak++;g.best=Math.max(g.best,g.streak);addXP(2);}else g.streak=0;
+    $("gc").classList.add(ok?"okk":"nok");
+    $("ge").innerHTML=`<div class="gexp ${ok?'okk':'nok'} fade">${ok?"✅ Правильно! ":"❌ Не зовсім: це "+(c[1]==="plus"?"перевага":"недолік")+". "}${esc(c[2])}</div>
+      <div class="gbtns"><button class="btn violet" id="gn">${g.i===9?"Підсумок 🏁":"Далі →"}</button></div>`;
+    $("gb").style.display="none";
+    $("gn").onclick=()=>{g.i++;drawGame();};
+  });
+}
+
+/* ============ 7. ПАМ’ЯТКА ============ */
+const RULES=[
+  ["Читай критично","Гарний і впевнений текст ще не означає правдивий."],
+  ["Шукай джерела","На що посилається відповідь? Якщо джерел немає, будь удвічі уважнішим."],
+  ["Відкривай посилання","Переконайся, що джерело існує, воно надійне і там справді таке написано."],
+  ["Звіряй з іншими джерелами","Підтверди важливі факти щонайменше у 2–3 незалежних місцях. Зверни увагу на дату."],
+  ["Бережи приватність і думай сам","Не діли особисті дані, а висновок роби власний."]];
+let ck=new Set();
+function m7(){
+  ck=new Set();
+  const body=`<div class="check">${RULES.map((r,i)=>`<div class="ck" data-i="${i}"><span class="box"></span><div><b>${i+1}. ${r[0]}</b><small>${r[1]}</small></div></div>`).join("")}</div>
+    <div class="golden"><div class="muted" style="font-weight:700">⭐ Золоте правило детектива</div><div class="big">ШІ — це помічник, а не остаточна істина</div></div>
+    <div id="fin"></div>`;
+  $("stage").innerHTML=shell(7,"Пам’ятка детектива ШІ-пошуку 🛡️","Ось 5 кроків, які захищають від усіх пасток. Прочитай кожен і постав галочку, коли зрозумієш.","Познач усі 5 правил.",body);
+  document.querySelectorAll(".ck").forEach(c=>c.onclick=()=>{const i=+c.dataset.i;ck.has(i)?ck.delete(i):ck.add(i);c.classList.toggle("on");
+    c.querySelector(".box").textContent=ck.has(i)?"✓":"";
+    if(ck.size===5){complete(7);finish();}});
+}
+function finish(){
+  const all=[1,2,3,4,5,6,7].every(i=>done.has(i));
+  $("fin").innerHTML=`<div class="card finish fade" style="margin-top:18px;background:var(--panel2)">
+    <span class="medal">${all?"🏅":"🎖️"}</span>
+    <h3 style="font-size:22px;margin:8px 0">${all?"Вітаємо! Ти випускник Академії детективів!":"Майже готово!"}</h3>
+    <p class="muted" style="margin:0 0 6px">Твій результат: <b style="color:var(--amber)">${xp} XP</b> · пройдено місій: ${done.size} з 7</p>
+    ${all?`<p style="margin:10px 0 0">Тепер ти знаєш суперсили і пастки ШІ-пошуку. Можна переходити до перевірки знань! 💪</p>`
+         :`<p style="margin:10px 0 0">Повернись до місій, позначених на мапі сірим, щоб отримати медаль.</p>`}
+  </div>`;
+  if(all)confetti();
+}
+function confetti(){
+  const c=document.createElement("div");c.className="confetti";const cols=["#3ef0b5","#9b7bff","#ff6fae","#ffc857"];
+  for(let i=0;i<90;i++){const p=document.createElement("i");p.style.left=Math.random()*100+"vw";p.style.background=cols[i%4];
+    p.style.animationDuration=(2+Math.random()*2.5)+"s";p.style.animationDelay=Math.random()*.8+"s";c.appendChild(p);}
+  document.body.appendChild(c);setTimeout(()=>c.remove(),5500);
+}
+
+const RENDER=[m0,m1,m2,m3,m4,m5,m6,m7];
+go(0);
+</script>
+</body>
+</html>
