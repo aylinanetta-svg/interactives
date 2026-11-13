@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Острови функцій — тренажер «Властивості функції», 9 клас</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@500;700&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#FFF8EE; --card:#FFFFFF; --ink:#2B2D42; --muted:#6B6F86;
+  --coral:#FF6B6B; --teal:#16B3A6; --sun:#FFC93C; --violet:#7B61FF; --sky:#3A86FF;
+  --pos:#22A86A; --neg:#F0507E; --inc:#FF8A00; --dec:#7B61FF;
+  --line:#ECE3D3; --soft:#FFF1DA;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{font-family:'Nunito',system-ui,sans-serif;color:var(--ink);background:var(--bg);
+  background-image:radial-gradient(circle at 10% 10%,#FFE7C2 0,transparent 30%),radial-gradient(circle at 90% 0%,#D8F3EF 0,transparent 30%),radial-gradient(circle at 80% 90%,#E9E3FF 0,transparent 35%);
+  background-attachment:fixed;font-size:17px;line-height:1.55}
+h1,h2,h3{font-family:'Comfortaa','Nunito',sans-serif;line-height:1.25;margin:.2em 0 .5em}
+h1{font-size:clamp(1.6rem,4vw,2.4rem)}
+h2{font-size:clamp(1.35rem,3vw,1.8rem)}
+h3{font-size:1.15rem}
+.wrap{max-width:980px;margin:0 auto;padding:16px 16px 80px}
+header.top{position:sticky;top:0;z-index:20;background:rgba(255,248,238,.92);backdrop-filter:blur(8px);border-bottom:2px dashed var(--line)}
+.topin{max-width:980px;margin:0 auto;padding:10px 16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.logo{font-family:'Comfortaa';font-weight:700;font-size:1.05rem;cursor:pointer;white-space:nowrap}
+.nav{display:flex;gap:6px;flex-wrap:wrap;flex:1}
+.nav button{border:2px solid var(--line);background:#fff;border-radius:999px;padding:5px 12px;font:700 .88rem 'Nunito',sans-serif;color:var(--ink);cursor:pointer;transition:.15s}
+.nav button:hover{transform:translateY(-1px);border-color:var(--sun)}
+.nav button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.nav button .ck{color:var(--pos)}
+.nav button.on .ck{color:#9ff0c8}
+.stars{font-weight:900;background:var(--sun);border-radius:999px;padding:4px 12px;white-space:nowrap}
+.pbar{height:6px;background:var(--line)}
+.pbar i{display:block;height:100%;background:linear-gradient(90deg,var(--teal),var(--sky),var(--violet));width:0;transition:width .5s}
+.view{display:none;animation:pop .35s ease}
+.view.on{display:block}
+@keyframes pop{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.card{background:var(--card);border-radius:22px;padding:22px;box-shadow:0 6px 0 var(--line),0 10px 30px rgba(43,45,66,.06);margin:18px 0;border:2px solid #F3EBDD}
+.hero{text-align:center;padding:30px 22px}
+.hero .big{font-size:3.2rem}
+.lead{font-size:1.1rem;color:var(--muted)}
+.map{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-top:14px}
+.isle{border-radius:22px;padding:18px;cursor:pointer;color:var(--ink);border:3px solid transparent;transition:.2s;position:relative;text-align:left;font:inherit}
+.isle:hover{transform:translateY(-4px) rotate(-.5deg)}
+.isle .em{font-size:2.4rem}
+.isle b{display:block;font-family:'Comfortaa';font-size:1.05rem;margin:4px 0}
+.isle small{color:var(--muted);font-weight:600}
+.isle .done{position:absolute;top:10px;right:12px;background:#fff;border-radius:999px;padding:2px 10px;font-weight:800;font-size:.8rem;color:var(--pos);display:none}
+.isle.visited .done{display:block}
+.c1{background:#FFE3E3}.c2{background:#DDF6EE}.c3{background:#FFEBD1}.c4{background:#E6E0FF}.c5{background:#DCEBFF}.c6{background:#FFF3C4}.c7{background:#F2F2F2}
+.def{background:linear-gradient(135deg,#EAF6FF,#F1ECFF);border-left:6px solid var(--sky);border-radius:16px;padding:14px 18px;margin:12px 0}
+.def b.t{color:var(--sky);text-transform:uppercase;font-size:.8rem;letter-spacing:.06em;display:block}
+.tip{background:#FFF6D6;border-left:6px solid var(--sun);border-radius:16px;padding:12px 18px;margin:12px 0}
+.warn{background:#FFE8EE;border-left:6px solid var(--neg);border-radius:16px;padding:12px 18px;margin:12px 0}
+.ex{border:2px dashed #D9CFF9;border-radius:18px;padding:12px 18px;margin:12px 0;background:#FCFBFF}
+.ex .h{font-weight:900;color:var(--violet)}
+.steps{counter-reset:s;list-style:none;padding:0}
+.steps li{counter-increment:s;position:relative;padding:6px 0 6px 44px}
+.steps li::before{content:counter(s);position:absolute;left:0;top:4px;width:32px;height:32px;border-radius:50%;background:var(--teal);color:#fff;font-weight:900;display:grid;place-items:center}
+.m{font-family:'Cambria Math','Times New Roman',serif;font-size:1.08em;white-space:nowrap}
+.two{display:grid;grid-template-columns:1.05fr 1fr;gap:18px;align-items:start}
+@media(max-width:760px){.two{grid-template-columns:1fr}}
+.plotbox{background:#fff;border-radius:18px;border:2px solid #F0E8DA;padding:8px;position:relative}
+svg.plot{width:100%;height:auto;display:block;touch-action:none;cursor:crosshair}
+svg.plot .grid{stroke:#F1ECE3;stroke-width:1}
+svg.plot .ax{stroke:#3d405b;stroke-width:1.6}
+svg.plot text{font:600 11px 'Nunito',sans-serif;fill:#8a8da3}
+svg.plot text.al{font:800 14px 'Nunito',sans-serif;fill:#3d405b;font-style:italic}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:.85rem;font-weight:700;padding:6px 6px 2px}
+.legend span::before{content:'';display:inline-block;width:18px;height:5px;border-radius:3px;background:var(--c);margin-right:6px;vertical-align:middle}
+.coord{position:absolute;top:12px;left:14px;background:var(--ink);color:#fff;border-radius:10px;padding:2px 10px;font-weight:800;font-size:.85rem;opacity:0;transition:.15s;pointer-events:none}
+table.t{border-collapse:separate;border-spacing:0;width:100%;margin:10px 0;font-size:.95rem}
+table.t th,table.t td{padding:9px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+table.t th{background:var(--soft)}
+table.t tr:first-child th:first-child{border-top-left-radius:12px}
+table.t tr:first-child th:last-child{border-top-right-radius:12px}
+.signline{display:flex;align-items:center;margin:16px 0 8px;font-weight:900}
+.signline .seg{flex:1;text-align:center;padding:6px 0;border-bottom:4px solid}
+.signline .p{color:var(--pos);border-color:var(--pos)}
+.signline .n{color:var(--neg);border-color:var(--neg)}
+.signline .pt{width:0;position:relative}
+.signline .pt::after{content:attr(data-v);position:absolute;top:30px;left:50%;transform:translateX(-50%);color:var(--ink);font-size:.9rem}
+.signline .pt::before{content:'';position:absolute;top:24px;left:-7px;width:10px;height:10px;border:2px solid var(--ink);border-radius:50%;background:#fff}
+.btn{border:none;border-radius:14px;padding:11px 20px;font:800 1rem 'Nunito',sans-serif;cursor:pointer;background:var(--ink);color:#fff;box-shadow:0 4px 0 #11121f;transition:.1s}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 #11121f}
+.btn.y{background:var(--sun);color:var(--ink);box-shadow:0 4px 0 #d9a21a}
+.btn.t{background:var(--teal);box-shadow:0 4px 0 #0e8077}
+.btn.g{background:#fff;color:var(--ink);border:2px solid var(--line);box-shadow:0 4px 0 var(--line)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.sp{flex:1}
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin:12px 0}
+.opt{border:2px solid var(--line);background:#fff;border-radius:16px;padding:12px 14px;font:700 1rem 'Nunito',sans-serif;text-align:left;cursor:pointer;color:var(--ink);transition:.12s}
+.opt:hover:not(:disabled){border-color:var(--sky);background:#F4F9FF}
+.opt.right{border-color:var(--pos);background:#E5F8EE}
+.opt.wrong{border-color:var(--neg);background:#FFE9EF}
+.opt:disabled{cursor:default}
+input.ans,input.f,textarea.f{font:700 1.05rem 'Nunito',sans-serif;border:2px solid var(--line);border-radius:14px;padding:10px 14px;color:var(--ink);background:#fff;outline:none}
+input.ans:focus,input.f:focus,textarea.f:focus{border-color:var(--sky)}
+textarea.f{width:100%;min-height:70px;resize:vertical;font-weight:600}
+.fb{border-radius:16px;padding:12px 16px;margin-top:12px;font-weight:600}
+.fb.ok{background:#E5F8EE;border:2px solid #9FE0BF}
+.fb.no{background:#FFF0F3;border:2px solid #FFB8CA}
+.fb .hd{font-weight:900;font-size:1.05rem}
+.chip{display:inline-block;border-radius:999px;padding:3px 12px;font-weight:800;font-size:.8rem}
+.dots{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 4px}
+.dots button{width:30px;height:30px;border-radius:50%;border:2px solid var(--line);background:#fff;font:800 .78rem 'Nunito',sans-serif;cursor:pointer;color:var(--ink)}
+.dots button.cur{border-color:var(--ink);transform:scale(1.12)}
+.dots button.ok{background:var(--pos);border-color:var(--pos);color:#fff}
+.dots button.no{background:var(--neg);border-color:var(--neg);color:#fff}
+.hint{background:#FFF6D6;border-radius:14px;padding:10px 14px;margin-top:10px;display:none;font-weight:600}
+.modes{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
+.modes button,.fsel button{border:2px solid var(--line);background:#fff;border-radius:12px;padding:6px 12px;font:800 .9rem 'Nunito',sans-serif;cursor:pointer;color:var(--ink)}
+.modes button.on{background:var(--violet);border-color:var(--violet);color:#fff}
+.fsel{display:flex;gap:6px;flex-wrap:wrap}
+.fsel button.on{background:var(--teal);border-color:var(--teal);color:#fff}
+.sliders{display:none;gap:14px;flex-wrap:wrap;margin:8px 0;font-weight:800}
+.sliders label{display:flex;align-items:center;gap:8px}
+input[type=range]{accent-color:var(--violet);width:150px}
+.info{background:var(--soft);border-radius:16px;padding:12px 16px;font-weight:600;min-height:70px}
+.mini{background:#F3FBFA;border:2px solid #BDEBE5;border-radius:18px;padding:14px 18px;margin-top:16px}
+.mini .q{font-weight:800}
+.self{display:grid;gap:12px}
+.selfrow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 12px;border-radius:16px;background:#FCFAF6;border:2px solid var(--line)}
+.selfrow b{min-width:220px}
+.lvl{display:flex;gap:6px;flex-wrap:wrap}
+.lvl button{border:2px solid var(--line);border-radius:12px;background:#fff;padding:6px 10px;font:700 .9rem 'Nunito',sans-serif;cursor:pointer;color:var(--ink)}
+.lvl button.on{border-color:var(--violet);background:#EFEBFF}
+.scorebig{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;margin:10px 0}
+.sb{background:var(--soft);border-radius:20px;padding:14px 22px;text-align:center;min-width:140px}
+.sb .n{font-size:2.2rem;font-weight:900;font-family:'Comfortaa'}
+.sb .l{font-weight:700;color:var(--muted);font-size:.9rem}
+.bars .bl{display:flex;align-items:center;gap:10px;margin:6px 0;font-weight:700}
+.bars .bl span:first-child{min-width:190px}
+.bars .tr{flex:1;height:14px;background:var(--line);border-radius:999px;overflow:hidden}
+.bars .tr i{display:block;height:100%;border-radius:999px}
+#report{width:100%;min-height:300px;font:600 .92rem/1.5 ui-monospace,Consolas,monospace;border:2px dashed var(--violet);border-radius:16px;padding:14px;background:#FBFAFF;color:var(--ink)}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(120px);background:var(--ink);color:#fff;padding:12px 22px;border-radius:999px;font-weight:800;transition:.3s;z-index:50}
+.toast.on{transform:translateX(-50%) translateY(0)}
+#confetti{position:fixed;inset:0;pointer-events:none;z-index:40}
+.foot{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:12px}
+.vids{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin:10px 0}
+.vid{display:flex;align-items:center;gap:14px;text-decoration:none;color:var(--ink);background:#fff;border:2px solid #FFD0D0;border-radius:18px;padding:12px 16px;transition:.15s}
+.vid:hover{transform:translateY(-3px);border-color:#FF4E4E}
+.vid .pl{width:54px;height:38px;border-radius:12px;background:#FF3B30;display:grid;place-items:center;flex:none}
+.vid .pl::after{content:'';border-left:14px solid #fff;border-top:9px solid transparent;border-bottom:9px solid transparent;margin-left:4px}
+.vid b{display:block}.vid small{color:var(--muted);font-weight:700}
+.easy{background:#F0FFF6;border-left:6px solid var(--pos);border-radius:16px;padding:12px 18px;margin:12px 0}
+.kbd{background:#fff;border:2px solid var(--line);border-radius:8px;padding:0 6px;font-weight:800}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="topin">
+    <div class="logo" data-go="home">🏝️ Острови функцій</div>
+    <nav class="nav" id="nav"></nav>
+    <div class="stars" id="starsTop">⭐ 0 / 16</div>
+  </div>
+  <div class="pbar"><i id="pbar"></i></div>
+</header>
+<canvas id="confetti"></canvas>
+<div class="toast" id="toast"></div>
+
+<main class="wrap">
+
+<!-- ================= HOME ================= -->
+<section class="view on" id="v-home">
+  <div class="card hero">
+    <div class="big">🧭🏝️📈</div>
+    <h1>Подорож Островами функцій</h1>
+    <p class="lead">Алгебра, 9 клас · Тема: <b>Властивості функції</b></p>
+    <p>Тобі належить відвідати 4 острови, де живуть головні властивості функцій, потренуватися в Лабораторії графіків, пройти випробування з 16 завдань і заповнити бортовий журнал (самооцінювання). Наприкінці отримаєш звіт, який треба скопіювати й надіслати вчителю в Google Classroom.</p>
+    <div class="row" style="justify-content:center;margin-top:14px">
+      <input class="f" id="nameIn" placeholder="Прізвище та ім’я" style="min-width:240px">
+      <input class="f" id="clsIn" placeholder="Клас (напр. 9-А)" style="width:150px">
+      <button class="btn y" id="startBtn">Вирушаємо! 🚀</button>
+    </div>
+  </div>
+  <div class="card">
+    <h2>🎬 Спочатку подивись відео</h2>
+    <p>Перед подорожжю переглянь відеоуроки від учителя: так теорію на островах буде легше зрозуміти.</p>
+    <div class="vids"><a class="vid" href="https://www.youtube.com/watch?v=WhdoHOlmO48" target="_blank" rel="noopener"><span class="pl"></span><span><b>Відеоурок 1</b><small>Властивості функції · відкриється на YouTube</small></span></a><a class="vid" href="https://www.youtube.com/watch?v=f5uRG5XYHy4" target="_blank" rel="noopener"><span class="pl"></span><span><b>Відеоурок 2</b><small>Властивості функції · відкриється на YouTube</small></span></a></div>
+  </div>
+  <h2>🗺️ Карта подорожі</h2>
+  <div class="map" id="map"></div>
+  <div class="card tip" style="margin-top:20px">
+    <b>Як працювати:</b> рухайся островами по черзі 1 → 4. На кожному є теорія, розібрані приклади, інтерактивний графік (наведи на нього курсор або проведи пальцем — побачиш координати точки) і мініперевірка. Потім — Лабораторія та Випробування. Прогрес зберігається в цьому браузері.
+  </div>
+</section>
+
+<!-- ================= ISLAND 1: ZEROS ================= -->
+<section class="view" id="v-z">
+  <div class="card">
+    <span class="chip c1">Острів 1</span>
+    <h2>🎯 Острів Нулів: нулі функції</h2>
+    <div class="def"><b class="t">Запам’ятай</b>
+      <b>Нуль функції</b> — це значення <span class="m">x</span>, при якому <span class="m">y = 0</span>.
+    </div>
+    <div class="two">
+      <div>
+        <div class="easy">🗣️ <b>Простими словами:</b> нулі функції — це місця, де графік <b>перетинає вісь Ox</b> (горизонтальну вісь). Дивимося, яке там <b>x</b>, — це і є нуль.</div>
+        <h3>Як знайти нулі за формулою</h3>
+        <ol class="steps">
+          <li>Замість <span class="m">y</span> пишемо <span class="m">0</span>.</li>
+          <li>Розв’язуємо рівняння і знаходимо <span class="m">x</span>.</li>
+        </ol>
+        <div class="warn">⚠️ Нуль — це <b>одне число</b> (x), а не точка. Пишемо «нулі: −2 і 2», а не «(−2; 0)».</div>
+      </div>
+      <div class="plotbox" id="p-z"></div>
+    </div>
+
+    <h3>📚 Приклади</h3>
+    <div class="ex"><span class="h">Приклад 1.</span> <span class="m">y = 2x − 6</span><br>
+      <span class="m">2x − 6 = 0</span> → <span class="m">2x = 6</span> → <span class="m">x = 3</span>. <b>Нуль функції: 3.</b></div>
+    <div class="ex"><span class="h">Приклад 2.</span> <span class="m">y = x² − 4</span> (графік праворуч)<br>
+      <span class="m">x² − 4 = 0</span> → <span class="m">x² = 4</span> → <span class="m">x = 2</span> або <span class="m">x = −2</span>. <b>Нулі функції: −2 і 2.</b> Саме в цих місцях графік перетинає вісь Ox.</div>
+    <div class="ex"><span class="h">Приклад 3.</span> <span class="m">y = x² + 1</span><br>
+      <span class="m">x² + 1 = 0</span> → <span class="m">x² = −1</span> — так не буває, бо квадрат числа не може бути від’ємним. <b>Нулів немає</b>: графік не торкається осі Ox.</div>
+
+    <div class="mini" id="mini-z"></div>
+    <div class="foot"><button class="btn g" data-go="home">← Карта</button><button class="btn t" data-go="s">Наступний острів →</button></div>
+  </div>
+</section>
+
+<!-- ================= ISLAND 2: SIGNS ================= -->
+<section class="view" id="v-s">
+  <div class="card">
+    <span class="chip c2">Острів 2</span>
+    <h2>🌗 Острів Знаків: проміжки знакосталості</h2>
+    <div class="def"><b class="t">Запам’ятай</b>
+      <b>Проміжки знакосталості</b> — це проміжки, де функція має <b>один знак</b>: тільки додатна (<span class="m">y &gt; 0</span>) або тільки від’ємна (<span class="m">y &lt; 0</span>).
+    </div>
+    <div class="two">
+      <div>
+        <div class="easy">🗣️ <b>Простими словами:</b><br>
+          🟢 графік <b>над</b> віссю Ox → <span class="m">y &gt; 0</span> (додатна);<br>
+          🔴 графік <b>під</b> віссю Ox → <span class="m">y &lt; 0</span> (від’ємна).</div>
+        <h3>Як знайти за графіком</h3>
+        <ol class="steps">
+          <li>Знайди нулі — точки, де графік перетинає Ox.</li>
+          <li>Подивись, де графік вище осі, а де нижче.</li>
+          <li>Запиши проміжки для x. Нулі не входять — ставимо <b>круглі дужки</b>.</li>
+        </ol>
+      </div>
+      <div class="plotbox" id="p-s"></div>
+    </div>
+
+    <h3>📚 Приклади</h3>
+    <div class="ex"><span class="h">Приклад 1.</span> <span class="m">y = x² − 4</span> (графік вище). Нулі: −2 і 2.
+      <div class="signline"><div class="seg p">+</div><div class="pt" data-v="−2"></div><div class="seg n">−</div><div class="pt" data-v="2"></div><div class="seg p">+</div></div>
+      <br>🟢 <span class="m">y &gt; 0</span>, коли <span class="m">x ∈ (−∞; −2) ∪ (2; +∞)</span><br>
+      🔴 <span class="m">y &lt; 0</span>, коли <span class="m">x ∈ (−2; 2)</span>
+    </div>
+    <div class="ex"><span class="h">Приклад 2.</span> <span class="m">y = x − 3</span>. Нуль: <span class="m">x = 3</span>.<br>
+      🟢 <span class="m">y &gt; 0</span>, коли <span class="m">x &gt; 3</span>, тобто <span class="m">x ∈ (3; +∞)</span><br>
+      🔴 <span class="m">y &lt; 0</span>, коли <span class="m">x &lt; 3</span>, тобто <span class="m">x ∈ (−∞; 3)</span><br>
+      <small>Перевірка: <span class="m">x = 5</span> → <span class="m">y = 2 &gt; 0</span> ✓; <span class="m">x = 0</span> → <span class="m">y = −3 &lt; 0</span> ✓</small></div>
+    <div class="tip">💡 <b>Не впевнений щодо знака?</b> Візьми будь-яке число з проміжку, підстав у формулу й подивись, який вийде знак.</div>
+
+    <div class="mini" id="mini-s"></div>
+    <div class="foot"><button class="btn g" data-go="z">← Попередній</button><button class="btn t" data-go="m">Наступний острів →</button></div>
+  </div>
+</section>
+
+<!-- ================= ISLAND 3: MONOTONIC ================= -->
+<section class="view" id="v-m">
+  <div class="card">
+    <span class="chip c3">Острів 3</span>
+    <h2>⛰️ Гора Монотонності: зростання і спадання</h2>
+    <div class="def"><b class="t">Запам’ятай</b>
+      Функція <b>зростає</b>, якщо зі збільшенням <span class="m">x</span> значення <span class="m">y</span> теж <b>збільшується</b>.<br>
+      Функція <b>спадає</b>, якщо зі збільшенням <span class="m">x</span> значення <span class="m">y</span> <b>зменшується</b>.
+    </div>
+    <div class="two">
+      <div>
+        <div class="easy">🧗 <b>Простими словами:</b> уяви, що ти йдеш по графіку <b>зліва направо</b>.<br>
+          Ідеш <b>вгору</b> ↗ — функція <span style="color:var(--inc);font-weight:900">зростає</span>.<br>
+          Ідеш <b>вниз</b> ↘ — функція <span style="color:var(--dec);font-weight:900">спадає</span>.</div>
+        <div class="warn">⚠️ Проміжки зростання і спадання записуємо через <b>x</b> (по горизонталі), а не через y!</div>
+      </div>
+      <div class="plotbox" id="p-m"></div>
+    </div>
+    <h3>🗂️ Шпаргалка</h3>
+    <table class="t">
+      <tr><th>Функція</th><th>Зростає ↗</th><th>Спадає ↘</th></tr>
+      <tr><td><span class="m">y = kx + b</span>, <span class="m">k &gt; 0</span><br><small>напр. y = 2x + 1</small></td><td>на всій прямій</td><td>—</td></tr>
+      <tr><td><span class="m">y = kx + b</span>, <span class="m">k &lt; 0</span><br><small>напр. y = −3x + 5</small></td><td>—</td><td>на всій прямій</td></tr>
+      <tr><td><span class="m">y = x²</span></td><td><span class="m">[0; +∞)</span></td><td><span class="m">(−∞; 0]</span></td></tr>
+      <tr><td>Парабола: проміжки змінюються <b>у вершині</b></td><td colspan="2">Знайди x вершини: <span class="m">x₀ = −b / (2a)</span>, і подивись на графік.</td></tr>
+    </table>
+
+    <h3>📚 Приклади</h3>
+    <div class="ex"><span class="h">Приклад 1.</span> <span class="m">y = 2x + 1</span>. Число перед x (<span class="m">k = 2</span>) додатне → функція <b>зростає</b> на всій прямій.<br>
+      <small>Перевірка: <span class="m">x = 1</span> → <span class="m">y = 3</span>; <span class="m">x = 2</span> → <span class="m">y = 5</span>. x більшає — y більшає ✓</small></div>
+    <div class="ex"><span class="h">Приклад 2.</span> <span class="m">y = −x² + 2x + 3</span> (графік вище). Вершина при <span class="m">x = 1</span>.<br>
+      Ліворуч від вершини графік іде вгору, праворуч — вниз.<br>
+      <b>Зростає</b> на <span class="m">(−∞; 1]</span>, <b>спадає</b> на <span class="m">[1; +∞)</span>.</div>
+
+    <div class="mini" id="mini-m"></div>
+    <div class="foot"><button class="btn g" data-go="s">← Попередній</button><button class="btn t" data-go="e">Наступний острів →</button></div>
+  </div>
+</section>
+
+<!-- ================= ISLAND 4: EXTREMES ================= -->
+<section class="view" id="v-e">
+  <div class="card">
+    <span class="chip c4">Острів 4</span>
+    <h2>🏆 Вершина Рекордів: найбільше і найменше значення</h2>
+    <div class="def"><b class="t">Запам’ятай</b>
+      <b>Найбільше значення</b> функції — це найбільше <span class="m">y</span>, яке вона має на проміжку.<br>
+      <b>Найменше значення</b> — найменше <span class="m">y</span>.
+    </div>
+    <div class="easy">🏔️ <b>Простими словами:</b> знайди на графіку <b>найвищу</b> точку — її <b>y</b> і є найбільшим значенням. Знайди <b>найнижчу</b> точку — її <b>y</b> і є найменшим значенням.</div>
+    <div class="warn">⚠️ Відповідь — це <b>y</b>, а не x! Наприклад: «найбільше значення дорівнює 4, його досягнуто при x = 2».</div>
+    <h3>Корисні правила</h3>
+    <table class="t">
+      <tr><th>Якщо…</th><th>то…</th></tr>
+      <tr><td>функція <b>зростає</b> на відрізку <span class="m">[a; b]</span></td><td>найменше — на лівому кінці <span class="m">f(a)</span>, найбільше — на правому <span class="m">f(b)</span></td></tr>
+      <tr><td>функція <b>спадає</b> на відрізку <span class="m">[a; b]</span></td><td>найбільше — <span class="m">f(a)</span>, найменше — <span class="m">f(b)</span></td></tr>
+      <tr><td>парабола, гілки <b>вгору</b></td><td>найменше значення — у вершині</td></tr>
+      <tr><td>парабола, гілки <b>вниз</b></td><td>найбільше значення — у вершині</td></tr>
+    </table>
+
+    <h3>🧪 Спробуй сам: рухай кінці відрізка й дивись, як змінюються значення</h3>
+    <div class="two">
+      <div>
+        <div class="fsel" id="eFsel"></div>
+        <div class="row" style="margin:10px 0;font-weight:800">
+          <label>a = <input type="range" id="eA" min="-4" max="4" step="0.5" value="-1"> <span id="eAv">−1</span></label>
+          <label>b = <input type="range" id="eB" min="-4" max="4" step="0.5" value="2"> <span id="eBv">2</span></label>
+        </div>
+        <div class="info" id="eInfo"></div>
+      </div>
+      <div class="plotbox" id="p-e"></div>
+    </div>
+
+    <h3>📚 Приклади</h3>
+    <div class="ex"><span class="h">Приклад 1.</span> <span class="m">y = x²</span> на відрізку <span class="m">[−1; 2]</span> (так стоїть на графіку вище).<br>
+      Найнижча точка — <span class="m">(0; 0)</span>, найвища — <span class="m">(2; 4)</span>.<br>
+      <b>Найменше значення: 0. Найбільше значення: 4.</b></div>
+    <div class="ex"><span class="h">Приклад 2.</span> <span class="m">y = 2x + 1</span> на відрізку <span class="m">[0; 3]</span>. <span class="m">k = 2 &gt; 0</span> — функція зростає.<br>
+      Найменше: <span class="m">f(0) = 2·0 + 1 = 1</span>. Найбільше: <span class="m">f(3) = 2·3 + 1 = 7</span>.</div>
+    <div class="ex"><span class="h">Приклад 3.</span> <span class="m">y = x² − 4</span> на всій прямій. Гілки вгору, вершина <span class="m">(0; −4)</span>.<br>
+      Найменше значення: −4. Найбільшого <b>немає</b>, бо графік іде вгору без кінця.</div>
+
+    <div class="mini" id="mini-e"></div>
+    <div class="foot"><button class="btn g" data-go="m">← Попередній</button><button class="btn t" data-go="lab">До Лабораторії →</button></div>
+  </div>
+</section>
+
+<!-- ================= LAB ================= -->
+<section class="view" id="v-lab">
+  <div class="card">
+    <span class="chip c5">Лабораторія</span>
+    <h2>🔬 Лабораторія графіків</h2>
+    <p>Обери функцію і «лінзу», через яку дивитимешся на графік. Спершу спробуй сам назвати властивість, а потім звір із підказкою внизу.</p>
+    <div class="fsel" id="labF"></div>
+    <div class="modes" id="labM"></div>
+    <div class="sliders" id="labS">
+      <label>a = <input type="range" id="lA" min="-5" max="5" step="0.5" value="-2"> <span id="lAv"></span></label>
+      <label>b = <input type="range" id="lB" min="-5" max="5" step="0.5" value="2"> <span id="lBv"></span></label>
+    </div>
+    <div class="two">
+      <div class="plotbox" id="p-lab"></div>
+      <div>
+        <div class="row"><button class="btn y" id="labReveal">👀 Показати відповідь</button></div>
+        <div class="info" id="labInfo" style="margin-top:12px">Подумай: що можна сказати про цю властивість? Потім натисни кнопку.</div>
+      </div>
+    </div>
+    <div class="foot"><button class="btn g" data-go="e">← Острів 4</button><button class="btn t" data-go="practice">До Випробування →</button></div>
+  </div>
+</section>
+
+<!-- ================= PRACTICE ================= -->
+<section class="view" id="v-practice">
+  <div class="card">
+    <div class="row"><span class="chip c6">Випробування</span><span class="sp"></span><b id="pCounter"></b></div>
+    <h2>⚔️ Випробування: 16 завдань</h2>
+    <p style="color:var(--muted);margin-top:-6px">Не поспішай! Зараховується <b>перша</b> відповідь. Якщо важко, натисни 💡 «Підказка». Після відповіді побачиш пояснення.</p>
+    <div class="dots" id="dots"></div>
+  </div>
+  <div class="card" id="taskCard"></div>
+</section>
+
+<!-- ================= RESULT ================= -->
+<section class="view" id="v-result">
+  <div class="card">
+    <span class="chip c7">Фініш</span>
+    <h2>📋 Бортовий журнал: результат і самооцінювання</h2>
+    <div id="resWarn"></div>
+    <div class="scorebig" id="scoreBig"></div>
+    <div class="bars" id="bars"></div>
+  </div>
+  <div class="card">
+    <h3>🪞 Оціни себе чесно</h3>
+    <p style="color:var(--muted)">Наскільки впевнено ти розумієш кожну тему?</p>
+    <div class="self" id="selfBox"></div>
+    <h3 style="margin-top:18px">✍️ Рефлексія</h3>
+    <p><b>Що було найважчим?</b></p>
+    <textarea class="f" id="r1" placeholder="Напр.: плутав(ла) проміжки зростання і знакосталості..."></textarea>
+    <p><b>Що вдалося найкраще / що нового дізнався(лася)?</b></p>
+    <textarea class="f" id="r2" placeholder="Напр.: навчився(лася) знаходити найбільше значення на відрізку..."></textarea>
+    <div class="row" style="margin-top:14px">
+      <input class="f" id="nameR" placeholder="Прізвище та ім’я" style="min-width:240px">
+      <input class="f" id="clsR" placeholder="Клас" style="width:130px">
+    </div>
+  </div>
+  <div class="card">
+    <h3>📤 Звіт для Google Classroom</h3>
+    <ol>
+      <li>Натисни <b>«Сформувати звіт»</b>, потім <b>«Скопіювати»</b>.</li>
+      <li>Відкрий завдання в Google Classroom.</li>
+      <li>Встав текст (<span class="kbd">Ctrl</span> + <span class="kbd">V</span>) у <b>приватний коментар</b> або у відповідь і натисни «Надіслати» / «Здати».</li>
+    </ol>
+    <div class="row"><button class="btn t" id="genBtn">📝 Сформувати звіт</button><button class="btn y" id="copyBtn">📋 Скопіювати</button></div>
+    <textarea id="report" readonly style="margin-top:14px" placeholder="Тут з’явиться твій звіт..."></textarea>
+    <div class="row" style="margin-top:10px"><span class="sp"></span><button class="btn g" id="resetBtn">🔄 Почати спочатку</button></div>
+  </div>
+</section>
+
+</main>
+
+<script>
+/* ---------------- helpers ---------------- */
+const $=s=>document.querySelector(s);
+const fmt=n=>{ if(n===null||n===undefined||isNaN(n))return '—'; let r=Math.round(n*100)/100; if(Object.is(r,-0))r=0; return String(r).replace('-','−').replace('.',','); };
+function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('on');clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove('on'),2200);}
+
+/* ---------------- state ---------------- */
+const KEY='fn-islands-v1';
+let S={name:'',cls:'',visited:{},answers:{},hints:{},self:{},r1:'',r2:'',start:null,minis:{}};
+try{const d=JSON.parse(localStorage.getItem(KEY)||'null'); if(d)S=Object.assign(S,d);}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
+
+/* ---------------- plot engine ---------------- */
+const COL={base:'#3A86FF',pos:'#22A86A',neg:'#F0507E',inc:'#FF8A00',dec:'#7B61FF',dim:'#C9CCDA',hl:'#3A86FF',zero:'#FF3B30'};
+function plot(el,o){
+  const W=520,H=o.h||400,{xmin,xmax,ymin,ymax}=o.view;
+  const X=x=>(x-xmin)/(xmax-xmin)*W, Y=y=>H-(y-ymin)/(ymax-ymin)*H;
+  const d0=o.dom?o.dom[0]:xmin, d1=o.dom?o.dom[1]:xmax, mode=o.mode||'base';
+  let s=`<svg viewBox="0 0 ${W} ${H}" class="plot">`;
+  const stepY=(ymax-ymin)>14?2:1, stepX=(xmax-xmin)>14?2:1;
+  for(let i=Math.ceil(xmin);i<=xmax;i++) s+=`<line class="grid" x1="${X(i)}" y1="0" x2="${X(i)}" y2="${H}"/>`;
+  for(let j=Math.ceil(ymin);j<=ymax;j++) s+=`<line class="grid" x1="0" y1="${Y(j)}" x2="${W}" y2="${Y(j)}"/>`;
+  if(mode==='ext'&&o.interval){const[a,b]=o.interval;s+=`<rect x="${X(a)}" y="0" width="${X(b)-X(a)}" height="${H}" fill="#7B61FF" opacity=".08"/>`;
+    s+=`<line x1="${X(a)}" y1="0" x2="${X(a)}" y2="${H}" stroke="#7B61FF" stroke-dasharray="4 4" opacity=".6"/><line x1="${X(b)}" y1="0" x2="${X(b)}" y2="${H}" stroke="#7B61FF" stroke-dasharray="4 4" opacity=".6"/>`;}
+  s+=`<line class="ax" x1="0" y1="${Y(0)}" x2="${W}" y2="${Y(0)}"/><line class="ax" x1="${X(0)}" y1="0" x2="${X(0)}" y2="${H}"/>`;
+  s+=`<path d="M${W} ${Y(0)} l-10 -5 v10z" fill="#3d405b"/><path d="M${X(0)} 0 l-5 10 h10z" fill="#3d405b"/>`;
+  s+=`<text class="al" x="${W-14}" y="${Y(0)-8}">x</text><text class="al" x="${X(0)+8}" y="14">y</text>`;
+  for(let i=Math.ceil(xmin);i<xmax;i+=1){ if(i===0||i%stepX)continue; s+=`<text x="${X(i)}" y="${Y(0)+15}" text-anchor="middle">${String(i).replace('-','−')}</text>`;}
+  for(let j=Math.ceil(ymin);j<ymax;j+=1){ if(j===0||j%stepY)continue; s+=`<text x="${X(0)-6}" y="${Y(j)+4}" text-anchor="end">${String(j).replace('-','−')}</text>`;}
+  s+=`<text x="${X(0)-6}" y="${Y(0)+15}" text-anchor="end">0</text>`;
+  // sample
+  let xs=[];const n=600;for(let i=0;i<=n;i++)xs.push(d0+(d1-d0)*i/n);
+  (o.kinks||[]).concat(o.crit||[]).concat(o.zeros||[]).forEach(k=>{if(k>=d0&&k<=d1)xs.push(k)});
+  if(o.interval){xs.push(Math.max(d0,o.interval[0]),Math.min(d1,o.interval[1]));}
+  xs=[...new Set(xs)].sort((a,b)=>a-b);
+  const P=xs.map(x=>[x,o.f(x)]);
+  const cat=(p,q)=>{const mx=(p[0]+q[0])/2,my=o.f(mx);
+    if(mode==='sign')return Math.abs(my)<1e-9?'base':(my>0?'pos':'neg');
+    if(mode==='mono')return Math.abs(q[1]-p[1])<1e-12?'base':(q[1]>p[1]?'inc':'dec');
+    if(mode==='ext'&&o.interval)return(mx>=o.interval[0]&&mx<=o.interval[1])?'hl':'dim';
+    return 'base';};
+  let segs=[],cur=null;
+  for(let i=1;i<P.length;i++){const c=cat(P[i-1],P[i]);if(!cur||cur.c!==c){cur={c,pts:[P[i-1]]};segs.push(cur);}cur.pts.push(P[i]);}
+  const cl=v=>Math.max(-2000,Math.min(2000,v));
+  segs.forEach(g=>{s+=`<polyline fill="none" stroke="${COL[g.c]}" stroke-width="${g.c==='dim'?3:4.5}" stroke-linecap="round" stroke-linejoin="round" points="${g.pts.map(p=>X(p[0]).toFixed(1)+','+cl(Y(p[1])).toFixed(1)).join(' ')}"/>`;});
+  if(mode==='sign'){ // colored bands on axis
+    segs.forEach(g=>{if(g.c==='base')return;const a=g.pts[0][0],b=g.pts[g.pts.length-1][0];s+=`<line x1="${X(a)}" y1="${Y(0)}" x2="${X(b)}" y2="${Y(0)}" stroke="${COL[g.c]}" stroke-width="7" opacity=".55"/>`;});}
+  if(o.dom){[d0,d1].forEach(x=>{s+=`<circle cx="${X(x)}" cy="${Y(o.f(x))}" r="5" fill="${mode==='ext'?'#3A86FF':COL.base}"/>`;});}
+  if(o.showZeros!==false&&(mode==='zero'||mode==='sign')&&o.zeros){o.zeros.forEach((z,i)=>{
+    s+=`<circle cx="${X(z)}" cy="${Y(0)}" r="${mode==='zero'?8:6}" fill="#fff" stroke="${COL.zero}" stroke-width="3"/>`;
+    if(mode==='zero')s+=`<text x="${X(z)}" y="${Y(0)-14}" text-anchor="middle" style="font:900 13px Nunito,sans-serif;fill:#FF3B30">x = ${(o.zlabels&&o.zlabels[i])||fmt(z)}</text>`;});}
+  let ext=null;
+  if(mode==='ext'&&o.interval){
+    const a=Math.max(d0,o.interval[0]),b=Math.min(d1,o.interval[1]);
+    const pts=P.filter(p=>p[0]>=a-1e-9&&p[0]<=b+1e-9);
+    let mx=pts[0],mn=pts[0];pts.forEach(p=>{if(p[1]>mx[1]+1e-9)mx=p;if(p[1]<mn[1]-1e-9)mn=p;});
+    ext={max:mx,min:mn,a,b};
+    [[mx,'#FF8A00','max'],[mn,'#22A86A','min']].forEach(([p,c,l])=>{
+      s+=`<line x1="${X(0)}" y1="${Y(p[1])}" x2="${X(p[0])}" y2="${Y(p[1])}" stroke="${c}" stroke-dasharray="5 4" stroke-width="2"/>`;
+      s+=`<circle cx="${X(p[0])}" cy="${Y(p[1])}" r="8" fill="${c}" stroke="#fff" stroke-width="3"/>`;
+      s+=`<text x="${X(p[0])}" y="${Y(p[1])+(l==='max'?-14:24)}" text-anchor="middle" style="font:900 13px Nunito,sans-serif;fill:${c}">${l} = ${fmt(p[1])}</text>`;});
+  }
+  s+=`<g id="hv" style="display:none"><line id="hvl" stroke="#2B2D42" stroke-dasharray="3 3" opacity=".4"/><circle id="hvc" r="6" fill="#2B2D42" stroke="#fff" stroke-width="2"/></g></svg>`;
+  let lg='';
+  if(mode==='sign')lg=`<span style="--c:${COL.pos}">y &gt; 0 (вище Ox)</span><span style="--c:${COL.neg}">y &lt; 0 (нижче Ox)</span>`;
+  if(mode==='mono')lg=`<span style="--c:${COL.inc}">зростає ↗</span><span style="--c:${COL.dec}">спадає ↘</span>`;
+  if(mode==='zero')lg=`<span style="--c:${COL.zero}">нулі функції</span>`;
+  if(mode==='ext')lg=`<span style="--c:#FF8A00">найбільше</span><span style="--c:#22A86A">найменше</span><span style="--c:#7B61FF">відрізок [a; b]</span>`;
+  el.innerHTML=(o.title?`<div style="font-weight:900;padding:4px 8px">${o.title}</div>`:'')+s+(lg?`<div class="legend">${lg}</div>`:'')+`<div class="coord"></div>`;
+  const svg=el.querySelector('svg'),hv=svg.querySelector('#hv'),hc=svg.querySelector('#hvc'),hl=svg.querySelector('#hvl'),co=el.querySelector('.coord');
+  const mv=e=>{const r=svg.getBoundingClientRect();const x=xmin+(e.clientX-r.left)/r.width*(xmax-xmin);
+    if(x<d0||x>d1){hv.style.display='none';co.style.opacity=0;return;}
+    const xr=Math.round(x*10)/10,y=o.f(xr);hv.style.display='';hc.setAttribute('cx',X(xr));hc.setAttribute('cy',Y(y));
+    hl.setAttribute('x1',X(xr));hl.setAttribute('x2',X(xr));hl.setAttribute('y1',Y(0));hl.setAttribute('y2',Y(y));
+    co.textContent=`x = ${fmt(xr)};  y = ${fmt(y)}`;co.style.opacity=1;};
+  svg.addEventListener('pointermove',mv);svg.addEventListener('pointerdown',mv);
+  svg.addEventListener('pointerleave',()=>{hv.style.display='none';co.style.opacity=0;});
+  return ext;
+}
+const interp=pts=>x=>{for(let i=1;i<pts.length;i++){const[a,b]=[pts[i-1],pts[i]];if(x<=b[0]+1e-12)return a[1]+(b[1]-a[1])*(x-a[0])/(b[0]-a[0]);}return pts[pts.length-1][1];};
+const GP=[[-5,-2],[-3,2],[1,-2],[4,4],[6,2]];
+const graphP={f:interp(GP),dom:[-5,6],view:{xmin:-6,xmax:7,ymin:-4,ymax:6},kinks:GP.map(p=>p[0]),h:380,title:'Графік функції y = f(x), D(f) = [−5; 6]'};
+
+/* ---------------- lab functions ---------------- */
+const LF=[
+ {n:'y = x² − 4',f:x=>x*x-4,view:{xmin:-5,xmax:5,ymin:-6,ymax:6},zeros:[-2,2],crit:[0],
+  i:{zero:'Нулі: <b>x = −2</b> і <b>x = 2</b>, бо x² − 4 = 0 ⇒ x² = 4.',sign:'y &gt; 0 при x ∈ <b>(−∞; −2) ∪ (2; +∞)</b>;<br>y &lt; 0 при x ∈ <b>(−2; 2)</b>.',mono:'Спадає на <b>(−∞; 0]</b>, зростає на <b>[0; +∞)</b>. Вершина параболи — (0; −4).',ext:'На всій прямій: найменше значення <b>−4</b> (при x = 0), найбільшого немає. Рухай повзунки, щоб дослідити відрізки.'}},
+ {n:'y = −x² + 2x + 3',f:x=>-x*x+2*x+3,view:{xmin:-5,xmax:5,ymin:-6,ymax:6},zeros:[-1,3],crit:[1],
+  i:{zero:'Нулі: <b>x = −1</b> і <b>x = 3</b> (−x² + 2x + 3 = 0 ⇔ x² − 2x − 3 = 0).',sign:'y &gt; 0 при x ∈ <b>(−1; 3)</b>;<br>y &lt; 0 при x ∈ <b>(−∞; −1) ∪ (3; +∞)</b>.',mono:'x₀ = −2/(2·(−1)) = 1. Зростає на <b>(−∞; 1]</b>, спадає на <b>[1; +∞)</b>.',ext:'На всій прямій: найбільше значення <b>4</b> (при x = 1), найменшого немає.'}},
+ {n:'y = 2x − 6',f:x=>2*x-6,view:{xmin:-5,xmax:5,ymin:-6,ymax:6},zeros:[3],
+  i:{zero:'Нуль: <b>x = 3</b>.',sign:'y &gt; 0 при x ∈ <b>(3; +∞)</b>; y &lt; 0 при x ∈ <b>(−∞; 3)</b>.',mono:'k = 2 &gt; 0 ⇒ функція <b>зростає на R</b>.',ext:'На R немає ні найбільшого, ні найменшого. На відрізку [a; b]: min = f(a), max = f(b), бо функція зростає.'}},
+ {n:'y = −x + 3',f:x=>-x+3,view:{xmin:-5,xmax:5,ymin:-6,ymax:6},zeros:[3],
+  i:{zero:'−x + 3 = 0 ⇒ <b>x = 3</b>.',sign:'y &gt; 0 при x ∈ <b>(−∞; 3)</b>; y &lt; 0 при x ∈ <b>(3; +∞)</b>.',mono:'k = −1 &lt; 0 ⇒ функція <b>спадає на всій прямій</b>.',ext:'На всій прямій немає ні найбільшого, ні найменшого. На відрізку [a; b]: max = f(a), min = f(b), бо функція спадає.'}}
+];
+let lab={f:0,mode:'zero',a:-2,b:2,rev:false};
+const MODES=[['zero','🎯 Нулі'],['sign','🌗 Знаки'],['mono','⛰️ Монотонність'],['ext','🏆 Найб./найм.']];
+function drawLab(){
+  const F=LF[lab.f];
+  $('#labF').innerHTML=LF.map((g,i)=>`<button class="${i===lab.f?'on':''}" data-i="${i}">${g.n}</button>`).join('');
+  $('#labM').innerHTML=MODES.map(([k,t])=>`<button class="${k===lab.mode?'on':''}" data-m="${k}">${t}</button>`).join('');
+  $('#labS').style.display=lab.mode==='ext'?'flex':'none';
+  let a=Math.min(lab.a,lab.b),b=Math.max(lab.a,lab.b);if(a===b)b=a+0.5;
+  $('#lAv').textContent=fmt(lab.a);$('#lBv').textContent=fmt(lab.b);
+  const ex=plot($('#p-lab'),Object.assign({},F,{mode:lab.mode,interval:[a,b]}));
+  let t=lab.rev?F.i[lab.mode]:'🤔 Подумай: що можна сказати про цю властивість? Потім натисни «Показати відповідь».';
+  if(lab.mode==='ext'&&ex)t+=`<hr style="border:none;border-top:2px dashed #e6d9bf">На відрізку <b>[${fmt(ex.a)}; ${fmt(ex.b)}]</b>:<br>🟠 найбільше значення <b>${fmt(ex.max[1])}</b> (при x = ${fmt(ex.max[0])})<br>🟢 найменше значення <b>${fmt(ex.min[1])}</b> (при x = ${fmt(ex.min[0])})`;
+  $('#labInfo').innerHTML=t;
+}
+$('#labF').onclick=e=>{const b=e.target.closest('button');if(!b)return;lab.f=+b.dataset.i;lab.rev=false;drawLab();};
+$('#labM').onclick=e=>{const b=e.target.closest('button');if(!b)return;lab.mode=b.dataset.m;lab.rev=false;drawLab();};
+$('#labReveal').onclick=()=>{lab.rev=true;drawLab();};
+$('#lA').oninput=e=>{lab.a=+e.target.value;drawLab();};
+$('#lB').oninput=e=>{lab.b=+e.target.value;drawLab();};
+
+/* island 4 explorer */
+const EF=[{n:'y = x²',f:x=>x*x,view:{xmin:-5,xmax:5,ymin:-2,ymax:17},crit:[0],h:420},{n:'y = −2x + 3',f:x=>-2*x+3,view:{xmin:-5,xmax:5,ymin:-8,ymax:12},h:420},{n:'y = x² − 4',f:x=>x*x-4,view:{xmin:-5,xmax:5,ymin:-6,ymax:13},crit:[0],h:420}];
+let ex4={f:0,a:-1,b:2};
+function drawE(){
+  $('#eFsel').innerHTML=EF.map((g,i)=>`<button class="${i===ex4.f?'on':''}" data-i="${i}">${g.n}</button>`).join('');
+  let a=Math.min(ex4.a,ex4.b),b=Math.max(ex4.a,ex4.b);if(a===b)b=a+0.5;
+  $('#eAv').textContent=fmt(ex4.a);$('#eBv').textContent=fmt(ex4.b);
+  const r=plot($('#p-e'),Object.assign({},EF[ex4.f],{mode:'ext',interval:[a,b]}));
+  $('#eInfo').innerHTML=`Функція <b>${EF[ex4.f].n}</b> на відрізку <b>[${fmt(a)}; ${fmt(b)}]</b>:<br>🟠 найбільше значення: <b>${fmt(r.max[1])}</b> (досягається при x = ${fmt(r.max[0])})<br>🟢 найменше значення: <b>${fmt(r.min[1])}</b> (досягається при x = ${fmt(r.min[0])})`;
+}
+$('#eFsel').onclick=e=>{const b=e.target.closest('button');if(!b)return;ex4.f=+b.dataset.i;drawE();};
+$('#eA').oninput=e=>{ex4.a=+e.target.value;drawE();};
+$('#eB').oninput=e=>{ex4.b=+e.target.value;drawE();};
+
+/* ---------------- mini checks ---------------- */
+const MINI={
+ z:{q:'Знайдіть нулі функції y = x − 7.',o:['x = 7','x = −7','x = 0','нулів немає'],c:0,e:'x − 7 = 0 ⇒ x = 7.'},
+ s:{q:'Графік функції на деякому проміжку лежить НИЖЧЕ осі Ox. Які там значення функції?',o:['додатні','від’ємні','дорівнюють нулю'],c:1,e:'Нижче осі Ox — значить y < 0, тобто значення від’ємні.'},
+ m:{q:'Функція y = 4x − 1…',o:['зростає','спадає','не змінюється'],c:0,e:'k = 4 > 0, тому функція зростає.'},
+ e:{q:'Найвища точка графіка — (3; 5). Яке найбільше значення функції?',o:['3','5','8'],c:1,e:'Найбільше значення — це y найвищої точки, тобто 5.'}
+};
+function renderMini(k){
+  const m=MINI[k],box=$('#mini-'+k),ans=S.minis[k];
+  box.innerHTML=`<div class="q">✅ Мініперевірка: ${m.q}</div><div class="opts">${m.o.map((t,i)=>`<button class="opt ${ans!==undefined?(i===m.c?'right':(i===ans?'wrong':'')):''}" data-i="${i}" ${ans!==undefined?'disabled':''}>${t}</button>`).join('')}</div>`+
+   (ans!==undefined?`<div class="fb ${ans===m.c?'ok':'no'}"><span class="hd">${ans===m.c?'🎉 Чудово! Острів пройдено.':'🙈 Не зовсім. Острів все одно відкрито — перечитай теорію!'}</span><br>${m.e}</div>`:'');
+  box.onclick=e=>{const b=e.target.closest('.opt');if(!b||b.disabled)return;S.minis[k]=+b.dataset.i;S.visited[k]=true;save();renderMini(k);renderNav();};
+}
+
+/* ---------------- tasks ---------------- */
+const TOP={z:['Нулі функції','#FFE3E3'],s:['Знакосталість','#DDF6EE'],m:['Зростання / спадання','#FFEBD1'],e:['Найб. / найм. значення','#E6E0FF']};
+const T=[
+ {t:'z',type:'in',q:'Знайдіть нуль функції <span class="m">y = 2x − 8</span>.',a:[4],h:'Заміни y на 0: 2x − 8 = 0.',e:'2x − 8 = 0 ⇒ 2x = 8 ⇒ x = 4.'},
+ {t:'z',type:'mc',q:'Графік функції перетинає вісь Ox у точці <span class="m">(5; 0)</span>. Чому дорівнює нуль функції?',o:['5','(5; 0)','0','−5'],c:0,h:'Нуль функції — це тільки x.',e:'Нуль функції — це значення x, тобто 5. Точку (5; 0) не пишемо.'},
+ {t:'z',type:'mc',q:'Нулі функції <span class="m">y = x² − 9</span>:',o:['тільки 3','−3 і 3','9','нулів немає'],c:1,h:'x² = 9. Які числа в квадраті дають 9?',e:'x² − 9 = 0 ⇒ x² = 9 ⇒ x = 3 або x = −3 (бо (−3)² = 9).'},
+ {t:'z',type:'mc',g:'P',q:'За графіком визначте нулі функції.',o:['−4; −1; 2','−5; 1; 4','−3; 4','−2; 2'],c:0,h:'Шукай місця, де графік перетинає вісь Ox. Записуй x.',e:'Графік перетинає вісь Ox при x = −4, x = −1 і x = 2.'},
+ {t:'s',type:'mc',q:'При яких x функція <span class="m">y = x − 3</span> набуває <b>додатних</b> значень?',o:['x > 3','x < 3','x > −3','x = 3'],c:0,h:'Розв’яжи нерівність x − 3 > 0.',e:'x − 3 > 0 ⇒ x > 3. Наприклад, x = 5: y = 2 > 0 ✓'},
+ {t:'s',type:'mc',q:'Графік функції на проміжку лежить <b>вище</b> осі Ox. Які на ньому значення функції?',o:['додатні','від’ємні','дорівнюють нулю'],c:0,h:'Вище осі Ox — значить y більше за нуль.',e:'Вище осі Ox ⇒ y > 0, значення додатні.'},
+ {t:'s',type:'mc',g:'Q',q:'За графіком функції <span class="m">y = x² − 2x − 3</span> визначте, при яких x <span class="m">y &lt; 0</span>.',o:['(−∞; −1)','(−1; 3)','(3; +∞)','(−∞; −1) ∪ (3; +∞)'],c:1,h:'Де графік лежить нижче осі Ox?',e:'Нулі: −1 і 3. Між ними графік нижче осі Ox ⇒ y < 0 при x ∈ (−1; 3).'},
+ {t:'s',type:'mc',g:'P',q:'За графіком: при яких x функція набуває <b>додатних</b> значень?',o:['(−4; −1) ∪ (2; 6]','[−5; −4) ∪ (−1; 2)','(−3; 4)','(−1; 2)'],c:0,h:'Знайди ділянки графіка над віссю Ox.',e:'Графік вище осі Ox між −4 і −1 та від 2 до кінця графіка (x = 6). Тому y > 0 при x ∈ (−4; −1) ∪ (2; 6].'},
+ {t:'m',type:'mc',q:'Яка з функцій <b>зростає</b>?',o:['y = −5x + 1','y = 5x − 2','y = −x','y = 7'],c:1,h:'Лінійна функція y = kx + b зростає, якщо k > 0.',e:'У y = 5x − 2 число k = 5 > 0, тому функція зростає.'},
+ {t:'m',type:'mc',q:'Функція <span class="m">y = −3x + 1</span>…',o:['зростає','спадає','не змінюється'],c:1,h:'Подивись на знак числа перед x.',e:'k = −3 < 0, тому функція спадає.'},
+ {t:'m',type:'mc',g:'Q',q:'За графіком функції <span class="m">y = x² − 2x − 3</span> визначте проміжок <b>спадання</b>.',o:['(−∞; 1]','[1; +∞)','(−1; 3)','(−∞; −4]'],c:0,h:'Знайди вершину параболи. Ліворуч від неї графік іде вниз.',e:'Вершина при x = 1. Ліворуч від неї графік іде вниз ⇒ спадає на (−∞; 1]; праворуч іде вгору ⇒ зростає на [1; +∞).'},
+ {t:'m',type:'mc',g:'P',q:'За графіком знайдіть проміжки <b>зростання</b> функції.',o:['[−5; −3] і [1; 4]','[−3; 1] і [4; 6]','[−5; 4]','[−4; −1] і [2; 6]'],c:0,h:'Йди по графіку зліва направо: де він підіймається?',e:'Графік іде вгору від x = −5 до x = −3 і від x = 1 до x = 4.'},
+ {t:'e',type:'in',g:'P',q:'За графіком знайдіть <b>найбільше значення</b> функції.',a:[4],h:'Знайди найвищу точку графіка. Відповідь — її y.',e:'Найвища точка — (4; 4), тому найбільше значення дорівнює 4.'},
+ {t:'e',type:'in',g:'P',q:'За графіком знайдіть <b>найменше значення</b> функції.',a:[-2],h:'Знайди найнижчу точку графіка. Відповідь — її y (вона від’ємна!).',e:'Найнижчі точки — (−5; −2) і (1; −2), тому найменше значення дорівнює −2.'},
+ {t:'e',type:'in',g:'Q',q:'За графіком знайдіть <b>найменше значення</b> функції <span class="m">y = x² − 2x − 3</span>.',a:[-4],h:'Гілки параболи вгору, тому найменше значення — у вершині.',e:'Вершина параболи — (1; −4), тому найменше значення дорівнює −4.'},
+ {t:'e',type:'mc',q:'Функція <span class="m">y = 2x + 1</span> зростає. Яке її <b>найбільше значення</b> на відрізку <span class="m">[0; 3]</span>?',o:['7','1','3','6'],c:0,h:'Зростає — отже, найбільше значення на правому кінці, при x = 3.',e:'f(3) = 2·3 + 1 = 7.'}
+];
+const graphQ={f:x=>x*x-2*x-3,view:{xmin:-4,xmax:6,ymin:-5,ymax:6},zeros:[-1,3],h:380,title:'y = x² − 2x − 3'};
+let cur=0;
+function perm(k,n){const r=[...Array(n).keys()];let x=k*9301+49297;for(let i=n-1;i>0;i--){x=(x*9301+49297)%233280;const j=Math.floor(x/233280*(i+1));[r[i],r[j]]=[r[j],r[i]];}return r;}
+function score(){let s=0;for(const k in S.answers)if(S.answers[k].ok)s++;return s;}
+function norm(v){return v.replace(/\s/g,'').replace(/[−–—]/g,'-').replace(',','.').replace(/^[xy]=/i,'');}
+function renderDots(){
+  $('#dots').innerHTML=T.map((t,i)=>{const a=S.answers[i];return `<button class="${i===cur?'cur ':''}${a?(a.ok?'ok':'no'):''}" data-i="${i}">${i+1}</button>`}).join('');
+  $('#pCounter').textContent=`Виконано: ${Object.keys(S.answers).length} / ${T.length}`;
+}
+$('#dots').onclick=e=>{const b=e.target.closest('button');if(!b)return;cur=+b.dataset.i;renderTask();};
+function renderTask(){
+  if(!S.start){S.start=Date.now();save();}
+  const t=T[cur],a=S.answers[cur],[tn,tc]=TOP[t.t];
+  let h=`<div class="row"><span class="chip" style="background:${tc}">${tn}</span><span class="sp"></span><b>Завдання ${cur+1} з ${T.length}</b></div>
+  <h3 style="margin-top:12px;font-size:1.25rem">${t.q}</h3>`;
+  if(t.g)h+=`<div class="plotbox" id="tplot" style="max-width:560px;margin:10px 0"></div>`;
+  if(t.type==='mc'){const ord=perm(cur,t.o.length);h+=`<div class="opts">${ord.map((i,p)=>`<button class="opt ${a?(i===t.c?'right':(i===a.v?'wrong':'')):''}" data-i="${i}" ${a?'disabled':''}>${'АБВГ'[p]}) ${t.o[i]}</button>`).join('')}</div>`;}
+  else{h+=`<div class="row" style="margin:12px 0"><input class="ans" id="ansIn" placeholder="Твоя відповідь" ${a?'disabled value="'+a.v+'"':''} inputmode="decimal"><button class="btn t" id="chk" ${a?'disabled':''}>Перевірити</button></div>`;}
+  if(!a)h+=`<button class="btn g" id="hintB" style="padding:7px 14px">💡 Підказка</button><div class="hint" id="hintT">${t.h}</div>`;
+  if(a)h+=`<div class="fb ${a.ok?'ok':'no'}"><span class="hd">${a.ok?['🎉 Правильно!','🚀 Супер!','⭐ Влучно!','💪 Так тримати!'][cur%4]:'😬 Помилка — розберімося:'}</span>${!a.ok&&t.type==='in'?` Правильна відповідь: <b>${fmt(t.a[0])}</b>.`:''}<br>${t.e}</div>`;
+  h+=`<div class="foot"><button class="btn g" id="prevB" ${cur===0?'disabled':''}>← Назад</button>`+
+     (cur<T.length-1?`<button class="btn" id="nextB">Далі →</button>`:`<button class="btn y" id="finB">🏁 До самооцінювання</button>`)+`</div>`;
+  $('#taskCard').innerHTML=h;
+  if(t.g==='P')plot($('#tplot'),graphP);
+  if(t.g==='Q')plot($('#tplot'),graphQ);
+  const hb=$('#hintB');if(hb)hb.onclick=()=>{$('#hintT').style.display='block';S.hints[cur]=true;save();};
+  $('#taskCard').querySelectorAll('.opt').forEach(b=>b.onclick=()=>answer(+b.dataset.i));
+  const ch=$('#chk');if(ch&&!a){ch.onclick=()=>{const v=$('#ansIn').value.trim();if(!v){toast('Введи відповідь 🙂');return;}answer(v);};$('#ansIn').onkeydown=e=>{if(e.key==='Enter')ch.click();};}
+  $('#prevB').onclick=()=>{cur--;renderTask();};
+  if($('#nextB'))$('#nextB').onclick=()=>{cur++;renderTask();};
+  if($('#finB'))$('#finB').onclick=()=>go('result');
+  renderDots();
+}
+function answer(v){
+  const t=T[cur];let ok;
+  if(t.type==='mc')ok=v===t.c;else{const n=parseFloat(norm(v));ok=!isNaN(n)&&t.a.some(x=>Math.abs(x-n)<1e-6);}
+  S.answers[cur]={v,ok};save();renderTask();renderNav();
+  if(ok)toast('⭐ +1 зірка!');
+  if(Object.keys(S.answers).length===T.length&&score()>=12)confetti();
+}
+
+/* ---------------- result ---------------- */
+const LV=['😟 Потрібна допомога','🙂 Майже розумію','😎 Впевнено'];
+function grade(){const s=score();return Math.max(1,Math.round(s/T.length*12));}
+function lvlName(g){return g>=10?'високий':g>=7?'достатній':g>=4?'середній':'початковий';}
+function topicScores(){const r={};for(const k in TOP)r[k]=[0,0];T.forEach((t,i)=>{r[t.t][1]++;if(S.answers[i]&&S.answers[i].ok)r[t.t][0]++;});return r;}
+function renderResult(){
+  const done=Object.keys(S.answers).length,s=score(),g=grade();
+  $('#resWarn').innerHTML=done<T.length?`<div class="warn">Виконано лише ${done} з ${T.length} завдань. <a href="#" id="toPr">Повернутися до Випробування</a> — або сформуй звіт як є.</div>`:'';
+  const tp=$('#toPr');if(tp)tp.onclick=e=>{e.preventDefault();go('practice');};
+  $('#scoreBig').innerHTML=`<div class="sb"><div class="n">⭐ ${s}/${T.length}</div><div class="l">правильних відповідей</div></div><div class="sb"><div class="n">${Math.round(s/T.length*100)}%</div><div class="l">результат</div></div><div class="sb"><div class="n">${g}</div><div class="l">бал (з 12) · ${lvlName(g)} рівень</div></div>`;
+  const ts=topicScores(),cols={z:'#FF6B6B',s:'#22A86A',m:'#FF8A00',e:'#7B61FF'};
+  $('#bars').innerHTML=Object.keys(TOP).map(k=>`<div class="bl"><span>${TOP[k][0]}</span><div class="tr"><i style="width:${ts[k][0]/ts[k][1]*100}%;background:${cols[k]}"></i></div><span>${ts[k][0]}/${ts[k][1]}</span></div>`).join('');
+  $('#selfBox').innerHTML=Object.keys(TOP).map(k=>`<div class="selfrow"><b>${TOP[k][0]}</b><div class="lvl" data-k="${k}">${LV.map((l,i)=>`<button class="${S.self[k]===i?'on':''}" data-i="${i}">${l}</button>`).join('')}</div></div>`).join('');
+  $('#r1').value=S.r1||'';$('#r2').value=S.r2||'';$('#nameR').value=S.name||'';$('#clsR').value=S.cls||'';
+}
+$('#selfBox').onclick=e=>{const b=e.target.closest('button');if(!b)return;const k=b.parentElement.dataset.k;S.self[k]=+b.dataset.i;save();renderResult();};
+['r1','r2'].forEach(id=>$('#'+id).oninput=e=>{S[id]=e.target.value;save();});
+$('#nameR').oninput=e=>{S.name=e.target.value;save();};$('#clsR').oninput=e=>{S.cls=e.target.value;save();};
+$('#genBtn').onclick=()=>{
+  if(!S.name.trim()){toast('Впиши прізвище та ім’я ✍️');$('#nameR').focus();return;}
+  const ts=topicScores(),s=score(),g=grade(),d=new Date();
+  const mins=S.start?Math.max(1,Math.round((Date.now()-S.start)/60000)):'—';
+  const hints=Object.keys(S.hints).length;
+  let r=`📋 ТРЕНАЖЕР «ВЛАСТИВОСТІ ФУНКЦІЇ» — АЛГЕБРА, 9 КЛАС\n`;
+  r+=`Учень/учениця: ${S.name.trim()}\nКлас: ${S.cls.trim()||'—'}\nДата: ${d.toLocaleDateString('uk-UA')} ${d.toLocaleTimeString('uk-UA',{hour:'2-digit',minute:'2-digit'})}\n`;
+  r+=`\n🏆 РЕЗУЛЬТАТ: ${s} з ${T.length} (${Math.round(s/T.length*100)}%) → ${g} б. з 12 (${lvlName(g)} рівень)\n`;
+  r+=`Виконано завдань: ${Object.keys(S.answers).length}/${T.length}; підказок використано: ${hints}; час роботи: ≈ ${mins} хв\n`;
+  r+=`\n📊 ЗА ТЕМАМИ:\n`;Object.keys(TOP).forEach(k=>r+=`• ${TOP[k][0]}: ${ts[k][0]}/${ts[k][1]}\n`);
+  r+=`\n🧩 ВІДПОВІДІ: `+T.map((t,i)=>`${i+1}${S.answers[i]?(S.answers[i].ok?'✅':'❌'):'⬜'}`).join(' ')+`\n`;
+  r+=`\n🏝️ ОСТРОВИ (мініперевірки): `+['z','s','m','e'].map((k,i)=>`${i+1}${S.minis[k]===undefined?'⬜':(S.minis[k]===MINI[k].c?'✅':'❌')}`).join(' ')+`\n`;
+  r+=`\n🪞 САМООЦІНЮВАННЯ:\n`;Object.keys(TOP).forEach(k=>r+=`• ${TOP[k][0]}: ${S.self[k]===undefined?'не оцінено':LV[S.self[k]]}\n`);
+  r+=`\n✍️ НАЙВАЖЧЕ: ${S.r1.trim()||'—'}\n✍️ НАЙКРАЩЕ ВДАЛОСЯ: ${S.r2.trim()||'—'}\n`;
+  $('#report').value=r;toast('Звіт готовий! Тепер скопіюй 📋');
+};
+$('#copyBtn').onclick=async()=>{
+  const ta=$('#report');if(!ta.value){$('#genBtn').click();if(!ta.value)return;}
+  try{await navigator.clipboard.writeText(ta.value);toast('✅ Скопійовано! Встав у Google Classroom');}
+  catch(e){ta.select();try{document.execCommand('copy');toast('✅ Скопійовано!');}catch(_){toast('Виділи текст і натисни Ctrl+C');}}
+};
+$('#resetBtn').onclick=()=>{const b=$('#resetBtn');if(b.dataset.c!=='1'){b.dataset.c='1';b.textContent='⚠️ Точно? Натисни ще раз';setTimeout(()=>{b.dataset.c='';b.textContent='🔄 Почати спочатку';},3000);return;}
+  S={name:'',cls:'',visited:{},answers:{},hints:{},self:{},r1:'',r2:'',start:null,minis:{}};save();cur=0;b.dataset.c='';b.textContent='🔄 Почати спочатку';$('#report').value='';$('#nameIn').value='';$('#clsIn').value='';go('home');};
+
+/* ---------------- nav ---------------- */
+const VIEWS=[['home','🗺️ Карта',null],['z','1 Нулі','z'],['s','2 Знаки','s'],['m','3 Монотонність','m'],['e','4 Найб./найм.','e'],['lab','🔬 Лабораторія','lab'],['practice','⚔️ Випробування',null],['result','📋 Результат',null]];
+let view='home';
+function renderNav(){
+  $('#nav').innerHTML=VIEWS.map(([k,t,v])=>`<button class="${k===view?'on':''}" data-go="${k}">${t}${v&&S.visited[v]?' <span class="ck">✓</span>':''}</button>`).join('');
+  const s=score();$('#starsTop').textContent=`⭐ ${s} / ${T.length}`;
+  const prog=(['z','s','m','e','lab'].filter(k=>S.visited[k]).length+Object.keys(S.answers).length)/(5+T.length);
+  $('#pbar').style.width=(prog*100)+'%';
+  const isl=[['z','🎯','Острів Нулів','Де графік зустрічає вісь Ox','c1'],['s','🌗','Острів Знаків','Де функція додатна, а де від’ємна','c2'],['m','⛰️','Гора Монотонності','Зростання і спадання','c3'],['e','🏆','Вершина Рекордів','Найбільше і найменше значення','c4'],['lab','🔬','Лабораторія','Досліджуй графіки самостійно','c5'],['practice','⚔️','Випробування',`16 завдань · ⭐ ${s}`,'c6'],['result','📋','Бортовий журнал','Самооцінка і звіт для вчителя','c7']];
+  $('#map').innerHTML=isl.map(([k,em,b,sm,c],i)=>`<button class="isle ${c} ${S.visited[k]?'visited':''}" data-go="${k}"><span class="done">✓ пройдено</span><div class="em">${em}</div><b>${i<4?(i+1)+'. ':''}${b}</b><small>${sm}</small></button>`).join('');
+}
+function go(k){
+  view=k;document.querySelectorAll('.view').forEach(v=>v.classList.toggle('on',v.id==='v-'+k));
+  if(k==='lab'){S.visited.lab=true;save();drawLab();}
+  if(k==='e')drawE();
+  if(k==='practice')renderTask();
+  if(k==='result')renderResult();
+  renderNav();window.scrollTo({top:0,behavior:'smooth'});
+}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-go]');if(b){e.preventDefault();go(b.dataset.go);}});
+$('#startBtn').onclick=()=>{S.name=$('#nameIn').value.trim()||S.name;S.cls=$('#clsIn').value.trim()||S.cls;save();go('z');};
+$('#nameIn').value=S.name||'';$('#clsIn').value=S.cls||'';
+
+/* ---------------- confetti ---------------- */
+function confetti(){
+  const c=$('#confetti'),x=c.getContext('2d');c.width=innerWidth;c.height=innerHeight;
+  const cols=['#FF6B6B','#FFC93C','#16B3A6','#3A86FF','#7B61FF'];
+  const p=Array.from({length:160},()=>({x:Math.random()*c.width,y:-20-Math.random()*c.height*.5,vx:(Math.random()-.5)*4,vy:2+Math.random()*4,r:Math.random()*6,c:cols[Math.random()*5|0],a:Math.random()*6}));
+  let t=0;(function f(){x.clearRect(0,0,c.width,c.height);p.forEach(q=>{q.x+=q.vx;q.y+=q.vy;q.a+=.1;x.save();x.translate(q.x,q.y);x.rotate(q.a);x.fillStyle=q.c;x.fillRect(-4,-2,8+q.r,4);x.restore();});
+    if(++t<200)requestAnimationFrame(f);else x.clearRect(0,0,c.width,c.height);})();
+}
+
+/* ---------------- init static plots ---------------- */
+plot($('#p-z'),{f:x=>x*x-4,view:{xmin:-5,xmax:5,ymin:-6,ymax:6},zeros:[-2,2],mode:'zero',title:'y = x² − 4'});
+plot($('#p-s'),{f:x=>x*x-4,view:{xmin:-5,xmax:5,ymin:-6,ymax:6},zeros:[-2,2],mode:'sign',title:'y = x² − 4'});
+plot($('#p-m'),{f:x=>-x*x+2*x+3,view:{xmin:-4,xmax:6,ymin:-6,ymax:6},crit:[1],mode:'mono',title:'y = −x² + 2x + 3'});
+['z','s','m','e'].forEach(renderMini);
+renderNav();
+</script>
+</body>
+</html>
