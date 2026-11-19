@@ -3,1100 +3,937 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Тигролови: маршрут утікача</title>
+<title>Координати вектора — інтерактивний урок</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Unbounded:wght@500;700&display=swap" rel="stylesheet">
 <style>
-/* Один візуальний світ: нічна зимова тайга. Сніжні картки на хвойно-синьому тлі, тигровий помаранчевий — акцент і «сліди». Маршрут станцій — стежка зліва направо. */
 :root{
-  --night:#0f2229;
-  --spruce:#173842;
-  --spruce-2:#1f4752;
-  --snow:#f1f5f3;
-  --frost:#a9c2be;
-  --ink:#16262b;
-  --ink-soft:#4b5f63;
-  --tiger:#f08a24;
-  --tiger-deep:#c96410;
-  --good:#3fa36c;
-  --good-bg:#e3f4ea;
-  --bad:#d4523f;
-  --bad-bg:#fbe7e3;
-  --display:"Unbounded", "Arial Black", system-ui, sans-serif;
-  --body:"Nunito", "Segoe UI", system-ui, sans-serif;
-  --radius:14px;
-  color-scheme:dark;
+  --ink:#16213e; --ink2:#4a5372; --muted:#8a90a6; --bg:#eef0f6; --paper:#fbfaf7;
+  --card:#fff; --line:#e3e6ef;
+  --coral:#ff6b4a; --teal:#12a594; --violet:#6c5ce7; --sun:#ffc24b; --blue:#2f80ed;
+  --ok:#16a34a; --bad:#e5484d; --okbg:#e8f8ee; --badbg:#fdecec;
+  --r:18px;
 }
 *{box-sizing:border-box}
-html,body{margin:0;min-height:100%}
-body{
-  background:var(--night);
-  background-image:
-    radial-gradient(1200px 500px at 85% -10%, #24525c 0%, transparent 60%),
-    radial-gradient(900px 400px at -10% 110%, #1b3f48 0%, transparent 60%);
-  background-attachment:fixed;
-  color:var(--snow);
-  font-family:var(--body);
-  font-size:17px;
-  line-height:1.55;
-}
-#snow{position:fixed;inset:0;pointer-events:none;z-index:0}
-.wrap{position:relative;z-index:1;max-width:880px;margin:0 auto;padding:24px 16px 64px}
-h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;line-height:1.2}
-h1{font-size:clamp(28px,5vw,44px);font-weight:800;letter-spacing:-.01em}
-h2{font-size:clamp(20px,3.4vw,28px);font-weight:700}
-h3{font-size:18px;font-weight:700}
-p{margin:0}
-button{font:inherit;cursor:pointer}
-button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:3px solid var(--tiger);outline-offset:2px}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font-family:Manrope,system-ui,sans-serif}
+button{font-family:inherit;cursor:pointer}
+input,textarea{font-family:inherit}
+.hidden{display:none!important}
 
-/* Верхня панель */
-.topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:20px;flex-wrap:wrap}
-.brand{display:flex;align-items:center;gap:10px;font-family:var(--display);font-weight:700;font-size:15px;color:var(--frost)}
-.brand svg{width:26px;height:26px}
-.tracks{display:flex;align-items:center;gap:8px;background:var(--spruce);border:1px solid #2b5560;padding:6px 14px;border-radius:999px;font-weight:800;font-variant-numeric:tabular-nums}
-.tracks svg{width:20px;height:20px}
+/* ---------- shell ---------- */
+.app{display:flex;flex-direction:column;height:100%}
+.topbar{display:flex;align-items:center;gap:10px;padding:8px 14px;background:var(--ink);color:#fff;flex:0 0 auto;z-index:20}
+.brand{font-family:Unbounded;font-size:14px;letter-spacing:.2px;white-space:nowrap}
+.brand small{font-family:Manrope;opacity:.6;font-weight:500;margin-left:8px;font-size:12px}
+.topbar .sp{flex:1}
+.tb{background:rgba(255,255,255,.09);color:#fff;border:0;border-radius:10px;padding:7px 11px;font-size:13px;font-weight:600;display:flex;gap:6px;align-items:center}
+.tb:hover{background:rgba(255,255,255,.18)}
+.tb.on{background:var(--coral)}
+.tb.teach.on{background:var(--teal)}
+.viewport{flex:1;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.stage{width:1280px;height:720px;position:absolute;left:50%;top:50%;transform-origin:center center;background:var(--paper);border-radius:22px;box-shadow:0 20px 60px rgba(22,33,62,.18);overflow:hidden}
+.slide{position:absolute;inset:0;padding:34px 46px 30px;display:none;flex-direction:column;animation:in .35s ease}
+.slide.active{display:flex}
+@keyframes in{from{opacity:0;transform:translateX(18px)}to{opacity:1;transform:none}}
+.bottombar{flex:0 0 auto;display:flex;align-items:center;gap:12px;padding:8px 16px;background:#fff;border-top:1px solid var(--line)}
+.nav{border:0;background:var(--ink);color:#fff;border-radius:12px;padding:9px 16px;font-weight:700;font-size:14px}
+.nav:disabled{opacity:.3;cursor:default}
+.prog{flex:1;height:8px;background:#e6e8f0;border-radius:9px;overflow:hidden;cursor:pointer}
+.prog i{display:block;height:100%;background:linear-gradient(90deg,var(--teal),var(--violet));border-radius:9px;transition:width .3s}
+.count{font-weight:700;font-size:13px;color:var(--ink2);min-width:70px;text-align:center}
+.score-pill{font-size:13px;font-weight:700;background:#f1f3f9;border-radius:20px;padding:6px 12px;color:var(--ink2)}
 
-/* Картки */
-.card{background:var(--snow);color:var(--ink);border-radius:var(--radius);padding:24px;box-shadow:0 12px 30px rgba(0,0,0,.28)}
-.card + .card{margin-top:16px}
-.muted{color:var(--ink-soft)}
-.eyebrow{font-family:var(--display);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--tiger-deep);font-weight:700;margin-bottom:8px}
-.stack{display:flex;flex-direction:column;gap:14px}
-.row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+/* ---------- slide content ---------- */
+.hdr{display:flex;align-items:center;gap:10px;margin-bottom:18px;flex-wrap:wrap}
+.hdr h2{font-family:Unbounded;font-weight:700;font-size:28px;margin:0 6px 0 0;letter-spacing:-.3px}
+.kicker{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:1.4px;color:var(--coral)}
+.chip{font-size:12.5px;font-weight:700;padding:6px 12px;border-radius:30px;background:var(--ink);color:#fff}
+.chip.acc{background:var(--teal)}
+.chip.vio{background:var(--violet)}
+.chip.sun{background:var(--sun);color:var(--ink)}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:26px;flex:1;min-height:0}
+.card{background:var(--card);border-radius:var(--r);padding:20px 22px;box-shadow:0 2px 0 var(--line),0 6px 22px rgba(22,33,62,.05)}
+.def{background:linear-gradient(135deg,#fff7e6,#fff);border:2px solid #ffe2a8}
+.def b.t{color:var(--coral)}
+.big{font-size:20px;line-height:1.55}
+.formula{font-family:Unbounded;font-size:24px;text-align:center;padding:12px;margin:10px 0;background:var(--ink);color:#fff;border-radius:14px;letter-spacing:.3px}
+.formula sub{font-size:.6em}
+p{margin:.4em 0}
+.muted{color:var(--muted)}
+.v{position:relative;display:inline-block;padding-top:.14em;line-height:1}
+.v::before{content:'';position:absolute;left:.04em;right:.16em;top:.03em;border-top:.075em solid currentColor}
+.v::after{content:'';position:absolute;right:0;top:-.08em;border-left:.24em solid currentColor;border-top:.12em solid transparent;border-bottom:.12em solid transparent}
+.btn{border:0;border-radius:12px;padding:10px 16px;font-weight:700;font-size:15px;background:#eef0f7;color:var(--ink);transition:transform .1s}
+.btn:active{transform:scale(.97)}
+.btn.pri{background:var(--ink);color:#fff}
+.btn.ok{background:var(--teal);color:#fff}
+.btn.cor{background:var(--coral);color:#fff}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
 
-/* Кнопки */
-.btn{border:0;border-radius:999px;padding:12px 22px;font-weight:800;background:var(--tiger);color:#1b1105;transition:transform .12s, background .12s}
-.btn:hover{background:#ff9a35}
-.btn:active{transform:translateY(1px)}
-.btn[disabled]{opacity:.45;cursor:not-allowed}
-.btn.ghost{background:transparent;color:var(--ink);border:2px solid #c9d6d3}
-.btn.ghost:hover{border-color:var(--tiger)}
-.btn.dark-ghost{background:transparent;color:var(--snow);border:2px solid #3b6670}
-.btn.dark-ghost:hover{border-color:var(--tiger)}
+/* title */
+.title-wrap{flex:1;display:grid;grid-template-columns:1.15fr .85fr;gap:30px;align-items:center}
+.title-wrap h1{font-family:Unbounded;font-size:64px;line-height:1.02;margin:10px 0 18px;letter-spacing:-1.5px}
+.title-wrap h1 em{font-style:normal;color:var(--coral)}
+.legend{display:grid;grid-template-columns:auto 1fr;gap:8px 12px;font-size:14px;color:var(--ink2);margin-top:22px}
+.legend kbd{background:#fff;border:1px solid var(--line);border-bottom-width:3px;border-radius:7px;padding:2px 8px;font-family:inherit;font-weight:700;font-size:12px;color:var(--ink)}
 
-/* Старт */
-.hero{padding:8px 0 22px}
-.hero .lead{color:var(--frost);max-width:62ch;margin-top:12px;font-size:18px}
-.topic{margin-top:16px;padding:12px 16px;border-left:4px solid var(--tiger);background:rgba(255,255,255,.05);border-radius:0 10px 10px 0;max-width:68ch;color:var(--snow)}
-label.f{display:flex;flex-direction:column;gap:6px;font-weight:700;font-size:15px}
-input[type=text]{font:inherit;padding:12px 14px;border-radius:10px;border:2px solid #c9d6d3;background:#fff;color:var(--ink);width:100%}
-input[type=text]:focus{border-color:var(--tiger);outline:none}
-.seg{display:flex;gap:8px;flex-wrap:wrap}
-.seg button{border:2px solid #c9d6d3;background:#fff;color:var(--ink);border-radius:999px;padding:8px 16px;font-weight:700}
-.seg button[aria-pressed=true]{border-color:var(--tiger);background:#fff3e6}
-.rules{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
-.rule{background:#e7eeec;border-radius:12px;padding:12px 14px;font-size:15px}
-.rule b{display:block;font-family:var(--display);font-size:13px;margin-bottom:2px}
+/* checklist */
+.checks{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:10px}
+.chk{display:flex;gap:16px;align-items:center;background:#fff;border-radius:var(--r);padding:22px;font-size:20px;font-weight:600;cursor:pointer;border:2px solid transparent;transition:.2s;user-select:none}
+.chk .e{font-size:38px}
+.chk .box{margin-left:auto;width:34px;height:34px;border-radius:10px;border:2.5px solid var(--line);display:grid;place-items:center;font-size:20px;color:#fff}
+.chk.on{border-color:var(--teal);background:#effaf8}
+.chk.on .box{background:var(--teal);border-color:var(--teal)}
 
-/* Мапа */
-.map{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
-.stop{position:relative;text-align:left;border:0;border-radius:var(--radius);padding:18px 18px 16px;background:var(--spruce);color:var(--snow);border:1px solid #2b5560;display:flex;flex-direction:column;gap:6px;min-height:150px}
-.stop:hover:not([disabled]){border-color:var(--tiger)}
-.stop[disabled]{opacity:.5;cursor:not-allowed}
-.stop .num{font-family:var(--display);font-size:13px;color:var(--frost)}
-.stop .name{font-family:var(--display);font-weight:700;font-size:19px}
-.stop .sub{font-size:14px;color:var(--frost)}
-.stop .state{margin-top:auto;font-size:14px;font-weight:800}
-.stop.done{background:#1d4a3a;border-color:#2f7a58}
-.stop.done .state{color:#8be0b2}
-.stop.current{border:2px solid var(--tiger)}
-.stop.current .state{color:var(--tiger)}
-.stop.exam{background:linear-gradient(135deg,#3a2510,#5a3510);border-color:#8a5520}
-.progress{height:10px;background:#0b1a1f;border-radius:999px;overflow:hidden;border:1px solid #2b5560}
-.progress > i{display:block;height:100%;background:var(--tiger);border-radius:999px;transition:width .4s}
+/* plane */
+.plane{width:100%;height:100%;display:block;touch-action:none;user-select:none}
+.plane .pt{cursor:grab}
+.plane .pt:active{cursor:grabbing}
+.live{font-size:18px;line-height:1.7}
+.live .num{font-family:Unbounded;font-size:17px}
+.planebox{background:#fff;border-radius:var(--r);padding:8px;display:flex;min-height:0}
 
-/* Текст уривка */
-details.text{background:#fbf7ef;border:1px solid #eadfca;border-radius:12px;padding:0}
-details.text summary{list-style:none;cursor:pointer;padding:14px 18px;font-weight:800;display:flex;justify-content:space-between;align-items:center;gap:12px}
-details.text summary::-webkit-details-marker{display:none}
-details.text summary .hint{font-weight:600;font-size:14px;color:var(--ink-soft)}
-details.text summary::after{content:"Сховати";font-size:13px;font-weight:800;color:var(--tiger-deep);white-space:nowrap}
-details.text:not([open]) summary::after{content:"Показати"}
-.text-body{padding:0 18px 18px;max-height:420px;overflow:auto;font-size:16.5px;line-height:1.65}
-.text-body p + p{margin-top:10px}
-.text-body h4{font-family:var(--display);font-size:14px;margin:14px 0 6px;color:var(--tiger-deep)}
-.text-body .q{font-style:italic}
-.source{font-size:13px;color:var(--ink-soft);margin-top:12px}
+/* reveal steps */
+.step{opacity:0;transform:translateY(6px);transition:.3s;height:0;overflow:hidden;margin:0}
+.step.shown{opacity:1;transform:none;height:auto;margin:6px 0}
+.ex{font-size:18px;line-height:1.6}
+.ex .ans{display:inline-block;background:var(--okbg);color:var(--ok);font-weight:800;border-radius:8px;padding:0 8px}
 
-/* Питання */
-.qhead{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
-.qcount{font-size:14px;font-weight:800;color:var(--ink-soft);font-variant-numeric:tabular-nums}
-.qtext{font-size:20px;font-weight:800;line-height:1.35}
-.quote{font-style:italic;background:#eef3f1;border-left:4px solid var(--tiger);padding:10px 14px;border-radius:0 10px 10px 0}
-.opts{display:grid;gap:10px}
-.opt{text-align:left;border:2px solid #cfdcd9;background:#fff;color:var(--ink);border-radius:12px;padding:12px 16px;font-weight:700;display:flex;gap:12px;align-items:flex-start}
-.opt:hover:not([disabled]){border-color:var(--tiger)}
-.opt .k{flex:none;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:#e7eeec;font-family:var(--display);font-size:13px}
-.opt.right{border-color:var(--good);background:var(--good-bg)}
-.opt.right .k{background:var(--good);color:#fff}
-.opt.wrong{border-color:var(--bad);background:var(--bad-bg)}
-.opt.wrong .k{background:var(--bad);color:#fff}
-.opt[disabled]{cursor:default}
-.feedback{border-radius:12px;padding:12px 16px;font-size:16px}
-.feedback.ok{background:var(--good-bg);border:1px solid #b7e0c7}
-.feedback.no{background:var(--bad-bg);border:1px solid #f1c3ba}
-.feedback b{display:block;margin-bottom:2px}
-.shake{animation:shake .35s}
-@keyframes shake{25%{transform:translateX(-6px)}50%{transform:translateX(6px)}75%{transform:translateX(-3px)}}
+/* task */
+.task .left{display:flex;flex-direction:column;min-height:0;overflow:auto;padding-right:4px}
+.stmt{font-size:19px;line-height:1.5;margin-bottom:12px}
+.part{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:9px 12px;border-radius:14px;background:#fff;margin-bottom:8px;border:2px solid transparent;font-size:17px}
+.part.ok{border-color:var(--ok);background:var(--okbg)}
+.part.bad{border-color:var(--bad);background:var(--badbg)}
+.part .pl{font-weight:700;min-width:0}
+.part .pin{display:flex;align-items:center;gap:5px;margin-left:auto;font-weight:700;white-space:nowrap}
+.part .mark{width:24px;text-align:center;font-size:19px}
+.inp{width:66px;padding:7px 8px;border:2px solid var(--line);border-radius:10px;font-size:17px;font-weight:700;text-align:center;color:var(--ink);background:#fff}
+.inp.w{width:90px}
+.inp:focus{outline:none;border-color:var(--violet)}
+.sq{border:0;background:#f0eefe;color:var(--violet);font-weight:800;border-radius:8px;padding:6px 9px;font-size:15px}
+.seg{display:flex;gap:6px;flex-wrap:wrap;margin-left:auto}
+.seg button{border:2px solid var(--line);background:#fff;border-radius:10px;padding:6px 12px;font-weight:700;font-size:15px;color:var(--ink)}
+.seg button.sel{border-color:var(--violet);background:#f0eefe}
+.fb{margin-top:10px;font-weight:700;font-size:16px;min-height:24px}
+.fb.ok{color:var(--ok)} .fb.bad{color:var(--bad)}
+.hintbox{margin-top:10px;background:#fff8e6;border-left:5px solid var(--sun);border-radius:10px;padding:10px 14px;font-size:15.5px;line-height:1.5}
+.ws{position:relative;border-radius:var(--r);overflow:hidden;background:#fff;
+  background-image:linear-gradient(#dbe5f5 1px,transparent 1px),linear-gradient(90deg,#dbe5f5 1px,transparent 1px);background-size:26px 26px;border:1px solid var(--line)}
+.wshint{position:absolute;left:14px;top:12px;font-size:13px;font-weight:700;color:#8aa0c8;background:rgba(255,255,255,.85);padding:3px 9px;border-radius:8px}
+.solpanel{position:absolute;inset:0;background:rgba(255,255,255,.97);padding:20px 22px;overflow:auto;animation:in .25s}
+.solpanel h3{margin:0 0 8px;font-family:Unbounded;font-size:18px}
+.solpanel .x{position:absolute;right:12px;top:10px;border:0;background:#f1f3f9;border-radius:9px;width:32px;height:32px;font-size:16px}
+.sstep{font-size:17px;line-height:1.55;padding:6px 10px;border-radius:10px;margin:4px 0;display:none}
+.sstep.shown{display:block;animation:in .25s}
+.sstep.hl{background:#f3f1ff}
+.after{margin-top:12px;background:linear-gradient(135deg,#e9f9f6,#fff);border:2px solid #bfeee6;border-radius:14px;padding:12px 14px;font-size:16px;line-height:1.5}
 
-/* Сортування */
-.sort-item{border:2px solid #cfdcd9;border-radius:12px;padding:12px 14px;background:#fff;display:flex;flex-direction:column;gap:10px}
-.sort-item .t{font-weight:700}
-.chips{display:flex;gap:8px;flex-wrap:wrap}
-.chip{border:2px solid #cfdcd9;background:#f5f8f7;color:var(--ink);border-radius:999px;padding:6px 14px;font-weight:700;font-size:15px}
-.chip[aria-pressed=true]{border-color:var(--tiger);background:#fff3e6}
-.sort-item.right{border-color:var(--good);background:var(--good-bg)}
-.sort-item.wrong{border-color:var(--bad);background:var(--bad-bg)}
+/* trainer */
+.trainer{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;text-align:center}
+.trainer .q{font-family:Unbounded;font-size:30px}
+.stat{display:flex;gap:14px;justify-content:center}
+.stat div{background:#fff;border-radius:14px;padding:10px 18px;font-weight:700}
+.stat b{display:block;font-family:Unbounded;font-size:26px}
+.modes{display:flex;gap:8px}
 
-/* Послідовність */
-.order-list{display:flex;flex-direction:column;gap:8px;padding:0;margin:0;list-style:none}
-.order-item{display:flex;align-items:center;gap:10px;border:2px solid #cfdcd9;background:#fff;border-radius:12px;padding:10px 12px}
-.order-item .n{flex:none;width:30px;height:30px;border-radius:50%;background:#e7eeec;display:grid;place-items:center;font-family:var(--display);font-size:13px}
-.order-item .t{flex:1;font-weight:700}
-.order-item .mv{display:flex;gap:6px}
-.mv button{width:38px;height:38px;border-radius:10px;border:2px solid #cfdcd9;background:#f5f8f7;color:var(--ink);font-weight:800;font-size:18px;line-height:1}
-.mv button:hover:not([disabled]){border-color:var(--tiger)}
-.mv button[disabled]{opacity:.35;cursor:default}
-.order-item.right{border-color:var(--good);background:var(--good-bg)}
-.order-item.wrong{border-color:var(--bad);background:var(--bad-bg)}
+/* nmt */
+.nmt{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;flex:1}
+.nq{display:flex;flex-direction:column;gap:10px}
+.nq .qt{font-size:17px;line-height:1.5;min-height:110px}
+.opt{display:flex;align-items:center;gap:10px;background:#f6f7fb;border:2px solid transparent;border-radius:12px;padding:10px 12px;font-size:17px;font-weight:600;text-align:left;width:100%}
+.opt .l{width:30px;height:30px;border-radius:9px;background:#fff;display:grid;place-items:center;font-weight:800}
+.opt.right{border-color:var(--ok);background:var(--okbg)}
+.opt.wrong{border-color:var(--bad);background:var(--badbg)}
+.expl{font-size:14.5px;color:var(--ink2);background:#f8f8fc;border-radius:10px;padding:8px 10px}
 
-/* Множинний вибір */
-.check{display:flex;gap:12px;align-items:center;border:2px solid #cfdcd9;background:#fff;border-radius:12px;padding:10px 14px;font-weight:700;cursor:pointer}
-.check input{width:22px;height:22px;accent-color:var(--tiger);flex:none}
-.check.right{border-color:var(--good);background:var(--good-bg)}
-.check.wrong{border-color:var(--bad);background:var(--bad-bg)}
+/* life cards */
+.life{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;flex:1}
+.lc{perspective:900px;cursor:pointer}
+.lc .in{position:relative;width:100%;height:100%;transition:transform .5s;transform-style:preserve-3d}
+.lc.flip .in{transform:rotateY(180deg)}
+.lc .f,.lc .b{position:absolute;inset:0;border-radius:var(--r);backface-visibility:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:14px;text-align:center}
+.lc .f{background:#fff;box-shadow:0 4px 18px rgba(22,33,62,.07)}
+.lc .f .e{font-size:48px}
+.lc .f .n{font-weight:800;font-size:17px;margin-top:8px}
+.lc .b{background:var(--ink);color:#fff;transform:rotateY(180deg);font-size:15px;line-height:1.45}
 
-/* Відповідність */
-.match-row{display:grid;grid-template-columns:1fr minmax(220px,300px);gap:12px;align-items:center;border:2px solid #cfdcd9;background:#fff;border-radius:12px;padding:10px 14px}
-.match-row .t{font-weight:700}
-.match-row select{font:inherit;padding:9px 10px;border-radius:10px;border:2px solid #cfdcd9;background:#f8faf9;color:var(--ink);width:100%}
-.match-row.right{border-color:var(--good);background:var(--good-bg)}
-.match-row.wrong{border-color:var(--bad);background:var(--bad-bg)}
-@media (max-width:560px){.match-row{grid-template-columns:1fr}}
+/* tf */
+.tf{display:flex;align-items:center;gap:12px;background:#fff;border-radius:14px;padding:12px 16px;margin-bottom:10px;font-size:17.5px;border:2px solid transparent}
+.tf .s{flex:1}
+.tf.ok{border-color:var(--ok);background:var(--okbg)}
+.tf.bad{border-color:var(--bad);background:var(--badbg)}
 
-.readbox{background:#fff3e6;border:1px solid #f4cfa6;border-radius:12px;padding:18px;display:flex;flex-direction:column;gap:12px}
-.readbox .book{font-family:var(--display);font-size:22px;font-weight:800;color:var(--ink);line-height:1.3}
-.readbox a{color:var(--tiger-deep);font-weight:800}
-.readbox.done{opacity:.85}
-details.text.locked summary{cursor:not-allowed;opacity:.65}
-details.text.locked summary::after{content:"Закрито"}
-.insight{background:#fff3e6;border:1px solid #f4cfa6;border-radius:12px;padding:14px 16px}
-.insight b{font-family:var(--display);font-size:13px;color:var(--tiger-deep);display:block;margin-bottom:4px;letter-spacing:.04em}
+/* reflection / report */
+.emo{display:flex;gap:12px}
+.emo button{font-size:40px;background:#fff;border:3px solid transparent;border-radius:18px;padding:8px 14px}
+.emo button.sel{border-color:var(--violet);background:#f3f1ff}
+textarea.ta,input.ta{width:100%;border:2px solid var(--line);border-radius:12px;padding:10px 12px;font-size:15.5px;resize:none;background:#fff;color:var(--ink)}
+textarea.ta:focus,input.ta:focus{outline:none;border-color:var(--violet)}
+label.lb{font-weight:700;font-size:15px;display:block;margin:10px 0 5px}
+.rep{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px;line-height:1.45;height:100%;background:#fbfbfd}
+.res-table{width:100%;border-collapse:collapse;font-size:13.5px;columns:2}
+.res-table td{padding:3px 6px;border-bottom:1px solid var(--line)}
+.res-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}
+.res-table td:last-child{text-align:right;font-weight:800}
+.bar{height:10px;background:#eceef5;border-radius:9px;overflow:hidden;margin:8px 0 4px}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--teal),var(--violet))}
 
-/* Результат станції */
-.big-score{font-family:var(--display);font-size:44px;font-weight:800;color:var(--tiger-deep);font-variant-numeric:tabular-nums}
-.paws{display:flex;gap:4px;flex-wrap:wrap}
-.paws svg{width:22px;height:22px}
+/* overlays */
+canvas#ink{position:absolute;inset:0;width:1280px;height:720px;z-index:15;pointer-events:none}
+canvas#ink.on{pointer-events:auto;cursor:crosshair}
+.pentools{position:absolute;right:14px;top:50%;transform:translateY(-50%);z-index:30;background:#fff;border-radius:16px;box-shadow:0 10px 30px rgba(22,33,62,.2);padding:10px;display:flex;flex-direction:column;gap:8px;align-items:center}
+.pentools .c{width:28px;height:28px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 0 2px var(--line)}
+.pentools .c.sel{box-shadow:0 0 0 3px var(--ink)}
+.pentools .t{border:0;background:#f1f3f9;border-radius:10px;width:38px;height:36px;font-size:17px}
+.pentools .t.sel{background:var(--ink);color:#fff}
+.pentools hr{width:100%;border:0;border-top:1px solid var(--line);margin:2px 0}
+.timer{position:absolute;right:20px;top:72px;z-index:30;background:var(--ink);color:#fff;border-radius:16px;padding:10px 14px;box-shadow:0 10px 30px rgba(0,0,0,.25);min-width:190px}
+.timer .d{font-family:Unbounded;font-size:34px;text-align:center}
+.timer .d.end{color:var(--sun);animation:blink .6s infinite}
+@keyframes blink{50%{opacity:.3}}
+.timer .row{display:flex;gap:5px;justify-content:center;margin-top:6px;flex-wrap:wrap}
+.timer button{border:0;border-radius:8px;padding:5px 8px;background:rgba(255,255,255,.12);color:#fff;font-weight:700;font-size:12.5px}
+.timer button.go{background:var(--teal)}
+.menu{position:absolute;left:12px;top:56px;z-index:40;background:#fff;border-radius:16px;box-shadow:0 14px 40px rgba(22,33,62,.25);padding:8px;width:330px;max-height:calc(100% - 80px);overflow:auto}
+.menu button{display:flex;gap:10px;width:100%;text-align:left;border:0;background:none;padding:8px 10px;border-radius:10px;font-size:14px;font-weight:600;color:var(--ink)}
+.menu button:hover{background:#f1f3f9}
+.menu button.cur{background:var(--ink);color:#fff}
+.menu .n{opacity:.5;width:22px}
+.menu .st{margin-left:auto}
+.modal{position:fixed;inset:0;background:rgba(22,33,62,.45);display:grid;place-items:center;z-index:100}
+.modal .box{background:#fff;border-radius:20px;padding:24px;width:360px;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.modal h3{margin:0 0 8px;font-family:Unbounded;font-size:18px}
+.toast{position:fixed;left:50%;bottom:76px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 18px;border-radius:12px;font-weight:700;z-index:200;animation:in .2s}
+.teach-only{display:none}
+body.teacher .teach-only{display:inline-flex}
+.boom{position:absolute;pointer-events:none;font-size:26px;animation:boom 1s ease-out forwards;z-index:50}
+@keyframes boom{to{transform:translate(var(--dx),var(--dy)) rotate(260deg);opacity:0}}
 
-/* Сертифікат */
-#certImg{width:100%;height:auto;border-radius:10px;display:block;box-shadow:0 10px 30px rgba(0,0,0,.35)}
-.save-tip{font-size:15px}
-
-.footer-actions{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:6px}
-.small{font-size:14px}
-.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
-
-@media (prefers-reduced-motion: reduce){
-  *{animation:none !important;transition:none !important}
-}
+/* ---------- mobile ---------- */
+body.m .viewport{display:block;overflow:auto}
+body.m .stage{position:relative;left:0;top:0;width:100%;height:auto;min-height:100%;transform:none!important;border-radius:0;box-shadow:none}
+body.m .slide{position:relative;padding:18px 14px 30px}
+body.m .cols,body.m .title-wrap,body.m .checks,body.m .nmt{grid-template-columns:1fr}
+body.m .life{grid-template-columns:1fr 1fr;grid-auto-rows:150px}
+body.m .title-wrap h1{font-size:38px}
+body.m .hdr h2{font-size:21px}
+body.m .ws{min-height:220px}
+body.m .planebox{height:360px}
+body.m #penBtn,body.m .brand small{display:none}
+body.m .part .pin{margin-left:0}
+body.m .tb span.l{display:none}
 </style>
 </head>
 <body>
-<canvas id="snow" aria-hidden="true"></canvas>
-<div class="wrap">
+<div class="app">
   <div class="topbar">
-    <div class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><use href="#paw"/></svg>Тренажер · 9 клас · Українська література</div>
-    <div class="tracks" title="Зібрані тигрячі сліди"><svg viewBox="0 0 64 64" aria-hidden="true"><use href="#paw"/></svg><span id="trackCount">0</span><span class="sr"> тигрячих слідів</span></div>
+    <button class="tb" id="menuBtn" title="Зміст">☰ <span class="l">Зміст</span></button>
+    <div class="brand">Координати вектора <small>Геометрія · Урок №20</small></div>
+    <div class="sp"></div>
+    <button class="tb" id="timerBtn" title="Таймер (T)">⏱ <span class="l">Таймер</span></button>
+    <button class="tb" id="penBtn" title="Перо — малювати поверх слайда (P)">✏️ <span class="l">Перо</span></button>
+    <button class="tb" id="fsBtn" title="На весь екран (F)">⛶</button>
+    <button class="tb teach" id="teachBtn" title="Режим вчителя">👩‍🏫 <span class="l">Вчитель</span></button>
   </div>
-  <main id="app" aria-live="polite"></main>
+
+  <div class="viewport" id="viewport">
+    <div class="stage" id="stage">
+
+      <!-- 1 TITLE -->
+      <section class="slide" data-title="Тема уроку">
+        <div class="title-wrap">
+          <div>
+            <span class="chip">Геометрія · 9 клас · Урок №20</span>
+            <h1>Координати<br><em>вектора</em></h1>
+            <p class="big muted" id="today"></p>
+            <div class="legend">
+              <kbd>← →</kbd><span>гортати слайди</span>
+              <kbd>P</kbd><span>перо: пишемо й малюємо поверх слайда</span>
+              <kbd>T</kbd><span>таймер на самостійну роботу</span>
+              <kbd>F</kbd><span>повний екран для демонстрації</span>
+            </div>
+          </div>
+          <div class="card" style="padding:10px;height:430px"><div id="planeHero" style="height:100%"></div></div>
+        </div>
+      </section>
+
+      <!-- 2 CHECKLIST -->
+      <section class="slide" data-title="Організація класу">
+        <div class="hdr"><span class="kicker">Організація класу</span></div>
+        <div class="hdr"><h2>Чек-лист перед стартом</h2><span class="muted">Натисни на кожен пункт, коли готовий</span></div>
+        <div class="checks" id="checks"></div>
+        <p class="fb ok" id="checksDone" style="text-align:center;margin-top:18px"></p>
+      </section>
+
+      <!-- 3 GOAL + PROBLEM -->
+      <section class="slide" data-title="Мета й проблемне питання">
+        <div class="hdr"><span class="kicker">Мета уроку</span></div>
+        <div class="cols">
+          <div style="display:flex;flex-direction:column;gap:16px">
+            <div class="card def big">🎯 Навчитися <b>знаходити координати вектора</b> за координатами його початку й кінця, обчислювати <b>модуль</b> вектора та розпізнавати <b>рівні</b> вектори.</div>
+            <div class="card big">❓ <b>Проблемне питання</b> (відповімо наприкінці уроку):<br>
+              <span style="color:var(--coral);font-weight:700">Де в реальному житті людям допомагають вектори?</span></div>
+          </div>
+          <div class="card">
+            <label class="lb" style="margin-top:0">💭 Мої припущення (запишіть 2–3 ідеї):</label>
+            <textarea class="ta" id="guess" rows="9" placeholder="Наприклад: у навігаторі телефона…"></textarea>
+            <p class="muted" style="font-size:14px">Ці ідеї потраплять у звіт, і наприкінці ви порівняєте їх з відповіддю.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 4 THEORY 1 -->
+      <section class="slide" data-title="Теорія: координати вектора">
+        <div class="hdr"><span class="kicker">Теорія</span><h2>Координати вектора</h2></div>
+        <div class="cols">
+          <div style="display:flex;flex-direction:column;gap:14px;min-height:0">
+            <div class="card def big"><b class="t">Координатами вектора</b> <span class="v">AB</span> з початком A(x<sub>1</sub>; y<sub>1</sub>) і кінцем B(x<sub>2</sub>; y<sub>2</sub>) називають числа
+              <div class="formula">x = x<sub>2</sub> − x<sub>1</sub> ; y = y<sub>2</sub> − y<sub>1</sub></div>
+              Пишуть: <span class="v">AB</span>(x; y). Правило: <b>«кінець мінус початок»</b>.</div>
+            <div class="card live" id="live1"></div>
+            <p class="muted" style="font-size:14px;margin:0">🖐 Перетягуйте точки A і B на площині — обчислення змінюються наживо.</p>
+          </div>
+          <div class="planebox"><div id="plane1" style="flex:1"></div></div>
+        </div>
+      </section>
+
+      <!-- 5 EXAMPLES 1 -->
+      <section class="slide" data-title="Приклади: координати">
+        <div class="hdr"><span class="kicker">Розбираємо разом</span><h2>Типові приклади</h2></div>
+        <div class="cols">
+          <div class="card ex reveal">
+            <p><b>Приклад 1.</b> Знайдіть координати вектора <span class="v">AB</span>, якщо A(−1; 4), B(5; 2).</p>
+            <p class="step">Кінець мінус початок: x = 5 − (−1) = 5 + 1 = 6.</p>
+            <p class="step">y = 2 − 4 = −2.</p>
+            <p class="step">Відповідь: <span class="ans"><span class="v">AB</span>(6; −2)</span></p>
+            <div class="btns"><button class="btn pri nx">Наступний крок ▶</button><button class="btn rs">↺</button></div>
+          </div>
+          <div class="card ex reveal">
+            <p><b>Приклад 2.</b> Знайдіть координати вектора <span class="v">AB</span>, якщо A(3; −2), B(3; 6).</p>
+            <p class="step">x = 3 − 3 = 0.</p>
+            <p class="step">y = 6 − (−2) = 6 + 2 = 8.</p>
+            <p class="step">Відповідь: <span class="ans"><span class="v">AB</span>(0; 8)</span>. Вектор вертикальний — уздовж осі y.</p>
+            <p class="step" style="background:#fff7e6;border-radius:10px;padding:8px 10px">💡 Координатами вектора можуть бути будь-які дійсні числа. У нульового вектора обидві координати нулі: <span class="v">0</span>(0; 0).</p>
+            <div class="btns"><button class="btn pri nx">Наступний крок ▶</button><button class="btn rs">↺</button></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 6 THEORY 2 -->
+      <section class="slide" data-title="Теорія: рівні вектори і модуль">
+        <div class="hdr"><span class="kicker">Теорія</span><h2>Рівні вектори та модуль</h2></div>
+        <div class="cols">
+          <div style="display:flex;flex-direction:column;gap:14px">
+            <div class="card def big"><b class="t">Теорема.</b> У рівних векторів відповідні координати рівні. І навпаки: якщо відповідні координати рівні, то вектори рівні.</div>
+            <div class="card def big"><b class="t">Модуль</b> (довжина) вектора <span class="v">a</span>(x; y):
+              <div class="formula">|<span class="v">a</span>| = √(x² + y²)</div></div>
+            <div class="card live" id="live2"></div>
+          </div>
+          <div class="planebox" style="flex-direction:column">
+            <div style="padding:6px 10px;font-weight:700">🎮 Перетягни точку <span style="color:var(--violet)">D</span>, щоб <span class="v">CD</span> = <span class="v">AB</span></div>
+            <div id="plane2" style="flex:1;min-height:0"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 7 EXAMPLES 2 -->
+      <section class="slide" data-title="Приклади: модуль і рівність">
+        <div class="hdr"><span class="kicker">Розбираємо разом</span><h2>Модуль і рівні вектори</h2></div>
+        <div class="cols">
+          <div class="card ex reveal">
+            <p><b>Приклад 3.</b> Знайдіть модуль вектора <span class="v">MN</span>(6; −8).</p>
+            <p class="step">|<span class="v">MN</span>| = √(6² + (−8)²)</p>
+            <p class="step">= √(36 + 64) = √100 = 10.</p>
+            <p class="step">Відповідь: <span class="ans">10</span></p>
+            <div class="btns"><button class="btn pri nx">Наступний крок ▶</button><button class="btn rs">↺</button></div>
+          </div>
+          <div class="card ex reveal">
+            <p><b>Приклад 4.</b> M(1; 2), N(4; −3), C(−2; 5), D(x; y). Знайдіть x і y, якщо <span class="v">MN</span> = <span class="v">CD</span>.</p>
+            <p class="step"><span class="v">MN</span> = (4 − 1; −3 − 2) = (3; −5).</p>
+            <p class="step"><span class="v">CD</span> = (x − (−2); y − 5) = (x + 2; y − 5).</p>
+            <p class="step">Вектори рівні ⇒ координати рівні: x + 2 = 3, y − 5 = −5.</p>
+            <p class="step">Відповідь: <span class="ans">x = 1, y = 0</span></p>
+            <div class="btns"><button class="btn pri nx">Наступний крок ▶</button><button class="btn rs">↺</button></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 8 TRAINER -->
+      <section class="slide" data-title="Тренажер-розминка">
+        <div class="hdr"><span class="kicker">Розминка</span><h2>Тренажер: швидкі обчислення</h2></div>
+        <div class="cols">
+          <div class="card trainer">
+            <div class="modes"><button class="btn" data-m="c">Координати</button><button class="btn" data-m="m">Модуль</button></div>
+            <div class="q" id="trQ"></div>
+            <div id="trIn" style="display:flex;gap:6px;align-items:center;font-weight:700;font-size:20px"></div>
+            <div class="btns" style="justify-content:center"><button class="btn ok" id="trCheck">Перевірити ⏎</button><button class="btn" id="trNext">Нове ▶</button></div>
+            <div class="fb" id="trFb"></div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:14px;justify-content:center">
+            <div class="stat"><div>Правильно<b id="trOk">0</b></div><div>Усього<b id="trAll">0</b></div><div>Серія 🔥<b id="trStreak">0</b></div></div>
+            <div class="card big muted" style="font-size:16px">Кожен учень на своєму пристрої отримує різні числа. Вчитель може попросити: «Наберіть серію з 5 правильних поспіль!» Результат потрапить у звіт.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TASKS (rendered by script) -->
+      <section class="slide" data-task="t71"></section>
+      <section class="slide" data-task="t75"></section>
+      <section class="slide" data-task="teq"></section>
+      <section class="slide" data-task="t77"></section>
+      <section class="slide" data-task="t79"></section>
+      <section class="slide" data-task="t711"></section>
+      <section class="slide" data-task="t713"></section>
+      <section class="slide" data-task="t715"></section>
+
+      <!-- NMT -->
+      <section class="slide" data-title="Тема уроку в завданнях НМТ">
+        <div class="hdr"><span class="kicker">Підготовка до НМТ</span><h2>Тема уроку в завданнях НМТ</h2><span class="muted">Одна спроба на кожне питання!</span></div>
+        <div class="nmt" id="nmt"></div>
+      </section>
+
+      <!-- LIFE -->
+      <section class="slide" data-title="Відповідь на проблемне питання">
+        <div class="hdr"><span class="kicker">Повертаємося до проблемного питання</span><h2>Де допомагають вектори?</h2><span class="muted">Натискайте на картки</span></div>
+        <div class="life" id="life"></div>
+      </section>
+
+      <!-- SUMMARY -->
+      <section class="slide" data-title="Підсумок: правда чи ні">
+        <div class="hdr"><span class="kicker">Підсумок</span><h2>Правда чи ні?</h2><span class="muted">Перевіримо, що запам’ятали</span></div>
+        <div id="tf"></div>
+      </section>
+
+      <!-- REFLECTION -->
+      <section class="slide" data-title="Рефлексія">
+        <div class="hdr"><span class="kicker">Рефлексія</span><h2>Обмін думками</h2></div>
+        <div class="cols">
+          <div class="card">
+            <label class="lb" style="margin-top:0">Як тобі урок?</label>
+            <div class="emo" id="emo"></div>
+            <label class="lb">Який вид роботи сподобався найбільше?</label>
+            <textarea class="ta" rows="3" data-r="liked"></textarea>
+          </div>
+          <div class="card">
+            <label class="lb" style="margin-top:0">Що нового ти дізнався сьогодні?</label>
+            <textarea class="ta" rows="3" data-r="learned"></textarea>
+            <label class="lb">Де можна використати ці знання?</label>
+            <textarea class="ta" rows="3" data-r="use"></textarea>
+          </div>
+        </div>
+      </section>
+
+      <!-- REPORT + HOMEWORK -->
+      <section class="slide" data-title="Домашнє завдання і звіт">
+        <div class="hdr"><span class="kicker">Фініш</span><h2>Домашнє завдання і звіт для вчителя</h2></div>
+        <div class="cols" style="grid-template-columns:1fr 1.1fr">
+          <div style="display:flex;flex-direction:column;gap:12px;min-height:0;overflow:auto">
+            <div class="card def" style="font-size:16px;line-height:1.5;padding:14px 18px">🏠 <b>Домашнє завдання</b><br>Опрацювати теорію підручника, с. 63–67.<br>Виконати № <b>7.8, 7.10, 7.14</b>.</div>
+            <div class="card">
+              <div style="display:grid;grid-template-columns:2fr 1fr;gap:10px">
+                <div><label class="lb" style="margin-top:0">Прізвище та ім’я</label><input class="ta" id="sname" placeholder="Іваненко Олена"></div>
+                <div><label class="lb" style="margin-top:0">Клас</label><input class="ta" id="sclass" placeholder="9-А"></div>
+              </div>
+              <div id="sumBox" style="margin-top:12px"></div>
+            </div>
+            <div class="btns" style="margin-top:0">
+              <button class="btn cor" id="copyRep">📋 Скопіювати звіт</button>
+              <button class="btn teach-only" id="resetAll">🗑 Скинути прогрес</button>
+            </div>
+            <p class="muted" style="font-size:13.5px;margin:0">Встав звіт у повідомлення вчителю (Classroom, Viber, e-mail тощо). У звіті є кожна відповідь, кількість спроб і чи використано підказку.</p>
+          </div>
+          <textarea class="ta rep" id="repText" readonly></textarea>
+        </div>
+      </section>
+
+      <canvas id="ink" width="2560" height="1440"></canvas>
+    </div>
+
+    <div class="pentools hidden" id="penTools"></div>
+    <div class="timer hidden" id="timer">
+      <div class="d" id="tDisp">03:00</div>
+      <div class="row"><button data-t="60">1 хв</button><button data-t="180">3</button><button data-t="300">5</button><button data-t="600">10</button></div>
+      <div class="row"><button class="go" id="tGo">▶ Старт</button><button id="tRst">↺</button><button id="tX">✕</button></div>
+    </div>
+    <div class="menu hidden" id="menu"></div>
+  </div>
+
+  <div class="bottombar">
+    <button class="nav" id="prev">◀</button>
+    <div class="count" id="count"></div>
+    <div class="prog" id="prog"><i></i></div>
+    <span class="score-pill" id="scorePill">⭐ 0</span>
+    <button class="nav" id="next">Далі ▶</button>
+  </div>
 </div>
 
-<svg width="0" height="0" style="position:absolute" aria-hidden="true">
-  <defs>
-    <symbol id="paw" viewBox="0 0 64 64">
-      <g fill="#f08a24">
-        <ellipse cx="32" cy="42" rx="14" ry="12"/>
-        <ellipse cx="14" cy="26" rx="6" ry="8" transform="rotate(-20 14 26)"/>
-        <ellipse cx="25" cy="15" rx="6" ry="8" transform="rotate(-6 25 15)"/>
-        <ellipse cx="39" cy="15" rx="6" ry="8" transform="rotate(6 39 15)"/>
-        <ellipse cx="50" cy="26" rx="6" ry="8" transform="rotate(20 50 26)"/>
-      </g>
-    </symbol>
-  </defs>
-</svg>
-
 <script>
-/* ===================== ТЕКСТИ-ПЕРЕКАЗИ ===================== */
-const FULLTEXT = "https://www.ukrlib.com.ua/books/printit.php?tid=30";
-const EBOOK = "https://pidruchnik.com/3242-ukr-literatura-9-klas-avramenko-2026.html";
-const TEXTS = {
-  dragon: {
-    pages: "111", what: "розділ перший «Дракон»", chapter: "Розділ перший",
-    title: "Розділ перший. «Дракон» — стислий переказ",
-    html: `
-<p>Ешелон із тисячами в'язнів мчить на схід, на каторгу. Автор порівнює потяг із драконом, що дихає полум'ям і димом.</p>
-<p>Потяг часто зупиняється, і щоразу перевіряють, чи на місці один арештант — Григорій Многогрішний. Коли ешелон доїхав до океану, з'ясувалося, що він утік.</p>
-<p>Тим самим шляхом мчить інший потяг — розкішний експрес для привілейованих пасажирів, які їдуть на Далекий Схід по пригоди й багатство: уссурійських тигрів, корінь женьшеню.</p>
-<p>У цьому експресі їде майор НКВД Медвин. Він дізнається, що втік засуджений на 25 років авіатор Многогрішний, якого Медвин сам два роки допитував і мучив, але не зламав.</p>
-<p>Перед утікачем — безмежна тайга. Він біжить на знесилення, їсть корінці та ягоди. Навколо ні сліду людського життя.</p>`
-  },
-  author: {
-    pages: "107–108", what: "життєпис Івана Багряного та рубрику «До речі…»",
-    title: "Довідка: автор і герой — стислий переказ",
-    html: `
-<h4>Іван Багряний (справжнє прізвище — Лозов'ягін)</h4>
-<p>Народився 1907 року на Сумщині, біля міста Охтирки, через яке тече річка Ворскла. Навчався в художньо-керамічній школі та в Київському художньому інституті, але диплома не отримав, бо його вважали «політично неблагонадійним». Писав вірші та оповідання.</p>
-<p>Після арешту його заслали на три роки на Далекий Схід, у суворий край біля океану. Там він бачив поселення українців, які давно переїхали туди з України. Охоплений тугою за домом, він утік і поїхав на захід, але в Томську його схопили. Потім були три роки табору.</p>
-<p>У в'язниці йому пропонували орден, якщо він зречеться товаришів і напише поему про Сталіна. Він відмовився. Під час Другої світової війни переїхав до Львова й написав роман «Звіролови» (1944). Згодом емігрував до Німеччини. Там роман перевидали під назвою «Тигролови». Помер 1963 року в Німеччині.</p>
-<h4>Григорій Многогрішний</h4>
-<p>Молодий українець, авіатор (льотчик), засуджений на 25 років. Його рід веде початок від гетьмана Дем'яна Многогрішного, якого колись теж заслали до Сибіру. Слідчий Медвин два роки допитував і катував Григорія, але не зламав.</p>
-<p>Дорогою на каторгу Григорій утікає з ешелону в тайгу. У маренні йому ввижається рідний край: Ворскла, Дніпро, мати. Згодом він опиняється в родині українців-переселенців Сірків.</p>`
-  },
-  death: {
-    chapter: "Розділ третій", pages: "112–115", what: "розділ третій «Навзаводи зі смертю» (до слів «Напружена та зрадлива тиша нетрів»)",
-    title: "Розділ третій. «Навзаводи зі смертю» — стислий переказ",
-    html: `
-<p>Змучений утікач лежить біля гірської річки, опускає ноги в холодну воду, жадібно п'є. Йому вчувається, що його кличуть на допит, але це лише шумлять пороги.</p>
-<p>Між каменями він знаходить старий мисливський ніж, довго відчищає й гострить його. Тепер у нього є зброя. Побачивши у воді своє заросле обличчя, він голиться цим ножем.</p>
-<p>Але сили тануть. Він довго бреде тайгою, рахує дні втечі, нарешті лягає під кедрами й думає, що це кінець. У маренні йому ввижається рідне: гаї, поля, Ворскла, Дніпро, мати біля печі.</p>
-<p>Раптом лунають постріли й відчайдушний крик «Грицьку!». Григорій вибігає на галявину: величезний ведмідь намагається дістати людину, що сховалася в розколині скелі. Григорій кидається на звіра з ножем і вбиває його. Остання мить, яку він бачить: людина в одязі звіролова біжить до нього. Далі — темрява.</p>
-<p>Уночі гірськими стежками мчать троє вершників. В одного щось лежить упоперек сідла: вони везуть пораненого додому.</p>`
-  },
-  family: {
-    chapter: "Розділ четвертий", pages: "115–120", what: "розділ четвертий «Родина тигроловів» і стислий виклад подальших подій на с. 120",
-    title: "Розділ четвертий. «Родина тигроловів» — стислий переказ",
-    html: `
-<p>Григорій приходить до тями в незнайомій хаті. Він певен, що рятував від ведмедя юнака, аж бачить перед собою дівчину, яка насмішкувато з ним розмовляє. Це Наталка. Тут і її брат Грицько, і старі батько та мати.</p>
-<p>Почувши, що це «Київський район», Григорій лякається: йому згадується київська в'язниця. Та з'ясовується, що «Київським» називають тутешній край, а Сірки — переселенці з України. Григорій каже, що він із Трипілля, і мати радіє: вони земляки! Вона каже йому: «У сміливих щастя завжди є».</p>
-<p>Мати розповідає, як колись давно родина пливла сюди з Одеси через багато морів, як освоювала дикий край і жила великою дружною сім'єю. Цей край переселенці вважали новою Україною й давали селам назви з рідного краю. Але прийшла радянська влада, і все перевернулося.</p>
-<p>Мати ніколи не бачила України, але сумує за нею й береже пам'ять про неї. Григорій не хоче її засмучувати й мовчить, що тієї ясної України вже немає. Сірки не розпитують, хто він, і Григорій вдячний їм за це.</p>
-<h4>Що було далі (стисло)</h4>
-<p>Григорій полює разом із Сірками, дружить із Грицьком і закохується в Наталку, але обоє горді й не признаються. Узимку він заблукав у тайзі, і Наталка з собакою Заливаєм його відшукала. Разом святкують Різдво за українськими звичаями. Григорій для Сірків тепер як рідний син. А на снігу з'являється напис-«привіт» від Медвина: переслідувач поруч.</p>`
-  },
-  theory: {
-    pages: "111", what: "рубрику «Теорія літератури: Пригодницький роман»",
-    title: "Теорія літератури: пригодницький роман — стислий переказ",
-    html: `
-<p><b>Пригодницький роман</b> — це роман із динамічним сюжетом, повним незвичайних подій і несподіваних поворотів.</p>
-<p>У таких творах часто трапляються викрадення, втечі, переслідування. Панує атмосфера таємничості й загадковості. Автор ставить читача в ситуації, коли треба припускати й розгадувати.</p>
-<p>Ви вже читали пригодницькі твори: «Тореадори з Васюківки» (6 клас), «За сестрою» (7 клас), «Дорогою ціною» (8 клас). В українській літературі цей жанр почав розробляти Пантелеймон Куліш у романі «Чорна рада».</p>
-<p><b>«Тигролови»</b> мають напружений сюжет, що стрімко розвивається й починається з кульмінації, як детектив. Про минуле Григорія автор розповідає не одразу, а по шматочку, тримаючи читача в напрузі. Літературознавець Юрій Шевельов вважав, що «Тигроловами» Багряний утвердив саме український пригодницький роман.</p>`
-  },
-  genre: {
-    pages: "109–110", what: "статтю «Роман „Тигролови“»",
-    title: "Жанрові особливості роману — стислий переказ",
-    html: `
-<p><b>Дві сюжетні лінії.</b> Головна — полювання майора НКВД Медвина на втікача Григорія. Паралельно розвивається романтична лінія: почуття Григорія і Наталки.</p>
-<p><b>Пейзажі тайги</b> то контрастують із настроєм героїв, то підсилюють його й напругу подій.</p>
-<p><b>Два світи.</b> Тоталітарну систему втілюють два потяги: ешелон смерті з в'язнями і розкішний експрес для партійної еліти.</p>
-<p><b>Автобіографічність.</b> У сюжет лягли спогади самого автора: заслання, тайга, українські поселення, втеча, туга за Україною, допити.</p>
-<p><b>Український дух.</b> Герої — нащадки козацького роду: працьовиті, сміливі, чесні. Сірки на чужині зберегли традиції та звичаї рідного народу.</p>
-<p><b>Головна ідея:</b> за будь-яких обставин особистість може й повинна залишатися Людиною. Життєве кредо Григорія — <span class="q">«Краще вмирати біжучи, ніж жити гниючи»</span>.</p>`
-  }
+/* ================= helpers ================= */
+const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const fmt=n=>{n=Math.round(n*1000)/1000;return n<0?'−'+Math.abs(n):String(n)};
+const par=n=>n<0?'('+fmt(n)+')':fmt(n);
+const V=s=>`<span class="v">${s}</span>`;
+function rootStr(q){const r=Math.sqrt(q);if(Number.isInteger(r))return String(r);
+  let k=1,m=q;for(let i=Math.floor(Math.sqrt(q));i>1;i--){if(q%(i*i)===0){k=i;m=q/(i*i);break}}
+  return (k>1?k:'')+'√'+m;}
+function parseNum(s){
+  if(s==null)return NaN;
+  s=String(s).trim().toLowerCase().replace(/[−–—]/g,'-').replace(/,/g,'.').replace(/\s+/g,'');
+  if(!s)return NaN;
+  const m=s.match(/^(-?)(\d*\.?\d*)\*?(√|v|sqrt|корінь|кор|k)\(?(\d+\.?\d*)\)?$/);
+  if(m){const c=m[2]===''?1:parseFloat(m[2]);return (m[1]?-1:1)*c*Math.sqrt(parseFloat(m[4]));}
+  if(!/^-?\d*\.?\d+$/.test(s))return NaN;
+  return parseFloat(s);
+}
+const eq=(a,b)=>Math.abs(a-b)<0.011;
+function toast(t){const d=document.createElement('div');d.className='toast';d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),1900)}
+function boom(el){const r=el.getBoundingClientRect();const e=['🎉','⭐','✨','🟢','💜'];
+  for(let i=0;i<14;i++){const s=document.createElement('div');s.className='boom';s.textContent=e[i%e.length];
+    s.style.left=(r.left+r.width/2)+'px';s.style.top=(r.top)+'px';s.style.position='fixed';
+    s.style.setProperty('--dx',(Math.random()*260-130)+'px');s.style.setProperty('--dy',(-Math.random()*200-40)+'px');
+    document.body.appendChild(s);setTimeout(()=>s.remove(),1000)}}
+
+/* ================= state ================= */
+const KEY='vector-lesson-20';
+let S={ans:{},res:{},nmt:{},tf:{},checks:[],warm:{ok:0,all:0,best:0},refl:{},emo:null,guess:'',name:'',cls:'',slide:0};
+try{const d=JSON.parse(localStorage.getItem(KEY)||'null');if(d)S=Object.assign(S,d)}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}updateScore()}
+let teacher=false;
+
+/* ================= task data ================= */
+const TASKS={
+ t71:{num:'7.1',page:'с. 66',title:'Координати вектора',
+  text:`Знайдіть координати вектора ${V('AB')}, якщо:`,
+  parts:[{l:'1) A(−3; 5), B(4; −7)',t:'pair',p:V('AB'),a:[7,-12]},{l:'2) A(2; −7), B(2; 3)',t:'pair',p:V('AB'),a:[0,10]}],
+  hint:`Кінець мінус початок: ${V('AB')} = (x<sub>B</sub> − x<sub>A</sub>; y<sub>B</sub> − y<sub>A</sub>). Обережно з мінусами: 4 − (−3) = 4 + 3.`,
+  sol:[`Формула: ${V('AB')} = (x<sub>2</sub> − x<sub>1</sub>; y<sub>2</sub> − y<sub>1</sub>).`,
+   `1) ${V('AB')} = (4 − (−3); −7 − 5) = (7; −12).`,
+   `2) ${V('AB')} = (2 − 2; 3 − (−7)) = (0; 10).`,
+   `<b>Відповідь:</b> 1) (7; −12); 2) (0; 10).`]},
+ t75:{num:'7.5',page:'с. 66',title:'Модуль вектора',
+  text:`Знайдіть модуль вектора:`,
+  parts:[{l:`1) ${V('a')}(−3; 4)`,t:'num',p:`|${V('a')}|`,a:5},{l:`2) ${V('b')}(12; 5)`,t:'num',p:`|${V('b')}|`,a:13}],
+  hint:`|${V('a')}| = √(x² + y²). Квадрат від’ємного числа — додатний: (−3)² = 9.`,
+  sol:[`Формула: |${V('a')}| = √(x² + y²).`,
+   `1) |${V('a')}| = √((−3)² + 4²) = √(9 + 16) = √25 = 5.`,
+   `2) |${V('b')}| = √(12² + 5²) = √(144 + 25) = √169 = 13.`,
+   `<b>Відповідь:</b> 1) 5; 2) 13.`]},
+ teq:{num:'7.5 (2)',page:'с. 66',title:'Рівні вектори',
+  text:`Дано: ${V('m')}(x; −5), ${V('n')}(4; y), ${V('m')} = ${V('n')}. Знайдіть x і y.`,
+  parts:[{l:'Знайдіть x і y',t:'xy',a:[4,-5]}],
+  hint:`Згадайте теорему: у рівних векторів відповідні координати рівні.`,
+  sol:[`Вектори рівні, отже відповідні координати рівні.`,`Перші координати: x = 4.`,`Другі координати: −5 = y.`,`<b>Відповідь:</b> x = 4, y = −5.`]},
+ t77:{num:'7.7',page:'с. 66',title:'Координати і модуль',
+  text:`Знайдіть координати вектора ${V('CD')} та його модуль, якщо:<br>1) C(5; −4), D(4; −7); &nbsp; 2) C(−2; 5), D(0; 8).`,
+  parts:[{l:'1)',t:'pair',p:V('CD'),a:[-1,-3]},{l:'1)',t:'num',p:`|${V('CD')}|`,a:Math.sqrt(10)},
+         {l:'2)',t:'pair',p:V('CD'),a:[2,3]},{l:'2)',t:'num',p:`|${V('CD')}|`,a:Math.sqrt(13)}],
+  hint:`Спочатку координати (кінець мінус початок), потім модуль за формулою √(x² + y²). Якщо корінь не добувається, запишіть його так: √10 (кнопка √).`,
+  sol:[`1) ${V('CD')} = (4 − 5; −7 − (−4)) = (−1; −3).`,`|${V('CD')}| = √((−1)² + (−3)²) = √(1 + 9) = √10.`,
+   `2) ${V('CD')} = (0 − (−2); 8 − 5) = (2; 3).`,`|${V('CD')}| = √(2² + 3²) = √(4 + 9) = √13.`,
+   `<b>Відповідь:</b> 1) ${V('CD')}(−1; −3), |${V('CD')}| = √10; 2) ${V('CD')}(2; 3), |${V('CD')}| = √13.`]},
+ t79:{num:'7.9',page:'с. 66',title:'Чи рівні вектори?',
+  text:`Чи рівні вектори ${V('AB')} і ${V('MN')}, якщо:<br>1) A(5; 7), B(6; −1), M(8; −2), N(9; −10);<br>2) A(6; −1), B(0; −2), M(4; 5), N(−2; 6)?`,
+  parts:[{l:'1)',t:'pair',p:V('AB'),a:[1,-8]},{l:'1)',t:'pair',p:V('MN'),a:[1,-8]},{l:'1) Висновок:',t:'choice',o:['рівні','не рівні'],a:0},
+         {l:'2)',t:'pair',p:V('AB'),a:[-6,-1]},{l:'2)',t:'pair',p:V('MN'),a:[-6,1]},{l:'2) Висновок:',t:'choice',o:['рівні','не рівні'],a:1}],
+  hint:`Знайдіть координати обох векторів і порівняйте їх попарно. Хоч одна пара відрізняється — вектори не рівні.`,
+  sol:[`1) ${V('AB')} = (6 − 5; −1 − 7) = (1; −8).`,`${V('MN')} = (9 − 8; −10 − (−2)) = (1; −8).`,`Координати рівні ⇒ ${V('AB')} = ${V('MN')}.`,
+   `2) ${V('AB')} = (0 − 6; −2 − (−1)) = (−6; −1).`,`${V('MN')} = (−2 − 4; 6 − 5) = (−6; 1).`,`Другі координати різні (−1 ≠ 1) ⇒ ${V('AB')} ≠ ${V('MN')}.`]},
+ t711:{num:'7.11',page:'с. 66',title:'Порівняйте модулі',
+  text:`Порівняйте модулі векторів ${V('a')} і ${V('b')}, якщо:<br>1) ${V('a')}(4; 1), |${V('b')}| = 4; &nbsp; 2) ${V('a')}(2; 1), ${V('b')}(−1; 2).`,
+  parts:[{l:'1)',t:'num',p:`|${V('a')}|`,a:Math.sqrt(17)},{l:'1)',t:'choice',o:['|a| > |b|','|a| = |b|','|a| < |b|'],a:0},
+         {l:'2)',t:'num',p:`|${V('a')}|`,a:Math.sqrt(5)},{l:'2)',t:'num',p:`|${V('b')}|`,a:Math.sqrt(5)},{l:'2)',t:'choice',o:['|a| > |b|','|a| = |b|','|a| < |b|'],a:1}],
+  hint:`Щоб порівняти √17 і 4, подайте 4 як √16.`,
+  sol:[`1) |${V('a')}| = √(4² + 1²) = √17.`,`4 = √16, а √17 > √16 ⇒ |${V('a')}| > |${V('b')}|.`,
+   `2) |${V('a')}| = √(2² + 1²) = √5; |${V('b')}| = √((−1)² + 2²) = √5.`,`Отже, |${V('a')}| = |${V('b')}|.`]},
+ t713:{num:'7.13',page:'с. 66',title:'Задача з секретом 🏅',
+  text:`Задано вектори ${V('a')}(−6; 8) і ${V('b')}(−12; −5). Знайдіть |${V('a')}| + |${V('b')}| — і дізнаєтеся, скільки нагород здобула збірна України на своїх перших літніх Олімпійських іграх (Атланта, 1996).`,
+  parts:[{l:'1)',t:'num',p:`|${V('a')}|`,a:10},{l:'2)',t:'num',p:`|${V('b')}|`,a:13},{l:'3)',t:'num',p:`|${V('a')}| + |${V('b')}|`,a:23}],
+  hint:`(−6)² = 36, 8² = 64; (−12)² = 144, (−5)² = 25.`,
+  sol:[`|${V('a')}| = √((−6)² + 8²) = √(36 + 64) = √100 = 10.`,`|${V('b')}| = √((−12)² + (−5)²) = √(144 + 25) = √169 = 13.`,`|${V('a')}| + |${V('b')}| = 10 + 13 = 23.`],
+  after:`🏅 <b>23 медалі</b>: 9 золотих, 2 срібні та 12 бронзових — 9-те місце в загальному заліку Атланти-1996.<br>🔎 Міні-дослідження: знайдіть ще одне досягнення українських олімпійців і розкажіть класу.`},
+ t715:{num:'7.15',page:'с. 66',title:'Знайдіть невідомі координати',
+  text:`Дано точки C(2; −3), D(4; −5), M(3; 5), N(x; y). Знайдіть x і y, якщо ${V('CD')} = ${V('MN')}.`,
+  parts:[{l:'1)',t:'pair',p:V('CD'),a:[2,-2]},{l:'2)',t:'xy',a:[5,3]}],
+  hint:`Знайдіть ${V('CD')}. Потім запишіть ${V('MN')} = (x − 3; y − 5) і прирівняйте відповідні координати.`,
+  sol:[`${V('CD')} = (4 − 2; −5 − (−3)) = (2; −2).`,`${V('MN')} = (x − 3; y − 5).`,`${V('CD')} = ${V('MN')} ⇒ x − 3 = 2, y − 5 = −2.`,`x = 5, y = 3.`,`<b>Відповідь:</b> x = 5, y = 3.`]}
 };
+const TASK_ORDER=Object.keys(TASKS);
 
-/* ===================== СТАНЦІЇ ===================== */
-const STATIONS = [
-  {
-    id:"eshelon", title:"Ешелон", sub:"Розділ «Дракон»", text:"dragon",
-    intro:"Ти в головному вагоні історії. Розберися, куди мчить «дракон» і хто їде в сусідньому потязі.",
-    parts:[
-    {type:"mc", name:"Читацький детектор: деталі з оригіналу", items:[
-      {q:"Як автор називає вагони ешелону?", opts:["Вагони-коробки","Вагони-клітки","Вагони-труни","Теплушки"], a:0,
-       hint:"с. 111, перший абзац розділу.", why:"У «вагонах-коробках» дракон везе тисячі людей на каторгу."},
-      {q:"Хто на зупинках біг перевіряти, чи на місці Григорій Многогрішний?", opts:["Сам начальник ешелону (етапу)","Майор Медвин","Машиніст","Інші в'язні"], a:0,
-       hint:"с. 111, речення про зупинки спецешелону.", why:"Григорій був таким небезпечним для системи, що його перевіряв сам начальник ешелону."},
-      {q:"Як відреагували вигнанці, коли з'ясувалося, що Григорій утік?", opts:["Зраділи за свого мужнього товариша","Злякалися покарання","Нічого не помітили","Допомагали шукати"], a:0,
-       hint:"с. 111, речення про приїзд до океану.", why:"Сотні засланців раділи за сміливця: його втеча — перемога над системою."},
-      {q:"Як у тексті названо край, куди мчать експресом шукачі пригод?", opts:["«Казковий край, ельдорадо»","«Земля обітована»","«Край вічної мерзлоти»","«Друга Україна»"], a:0,
-       hint:"с. 111, опис «Тихоокеанського експреса».", why:"Для привілейованих пасажирів Далекий Схід — казка й багатство, для в'язнів — каторга."}
-    ]},
-    {type:"mc", name:"Розуміємо прочитане", items:[
-      {q:"Що автор у першому розділі називає «драконом»?", quote:"«Дихаючи полум'ям і димом, дракон летів на схід».",
-       opts:["Ешелон із в'язнями","Тигра, якого полюють Сірки","Літак Григорія","Казкове чудовисько з легенди"], a:0,
-       why:"Це метафора: потяг-ешелон, що везе людей на каторгу, дихає вогнем і димом, як дракон."},
-      {q:"Ким був Григорій Многогрішний до арешту?", opts:["Авіатором (льотчиком)","Художником","Мисливцем-тигроловом","Вчителем"], a:0,
-       why:"Медвину доповідають, що втік засуджений на 25 років авіатор Многогрішний."},
-      {q:"На який строк засудили Григорія?", opts:["На 25 років","На 3 роки","На 10 років","Довічно"], a:0,
-       why:"Двадцять п'ять років — так система карала «особливо небезпечних»."},
-      {q:"Хто такий Медвин?", opts:["Майор НКВД, який два роки допитував і катував Григорія","Начальник ешелону","Батько Наталки","Мисливець, що ловить тигрів"], a:0,
-       why:"Медвин — слідчий, втілення тоталітарної системи. Він не зміг зламати Григорія, тому й ненавидів його."},
-      {q:"Яким потягом їхав Медвин?", opts:["«Тихоокеанським експресом номер один» для привілейованих","Тим самим ешелоном, що й в'язні","Товарним потягом із хутром","Він летів літаком"], a:0,
-       why:"Два потяги — два світи: в'язні в ешелоні смерті й еліта в розкішному експресі."}
-    ]}],
-    fact:"Багряний сам їхав на Далекий Схід як засланець, тож дорогу «на схід» знав не з книжок."
-  },
-  {
-    id:"author", title:"Автор і герой", sub:"Автобіографічні події", text:"author",
-    intro:"Що в житті Григорія взято з життя самого Івана Багряного, а що автор вигадав? Розклади факти.",
-    parts:[
-    {type:"mc", name:"Читацький детектор: деталі з підручника", items:[
-      {q:"Якими словами Багряний у спогадах описує місця свого заслання?", opts:["«Охотське море. Тайга. Тундра. Звіроловство»","«Сибір. Сніг. Голод. Самотність»","«Ліс. Річка. Гори. Тигри»","«Табір. Колючий дріт. Вежі»"], a:0,
-       hint:"с. 107, наприкінці сторінки — спогад письменника.", why:"Тайга і звіроловство, які автор бачив на засланні, стали світом роману."},
-      {q:"Що, за спогадами Багряного, змусило його втекти із заслання?", opts:["Страшна, непереможна туга за Україною","Голод","Наказ товаришів","Бажання поїхати за кордон"], a:0,
-       hint:"с. 108, перші рядки.", why:"Та сама туга живе й у Григорія, який у маренні бачить Ворсклу й Дніпро."}
-    ]},
-    {type:"sort", name:"Автор чи герой?", prompt:"Кому належить кожен факт? Обери для кожного рядка: Багряний, Григорій або обидва.",
-      bins:["Іван Багряний","Григорій","Обидва"],
-      items:[
-        {t:"Пережив арешт і заслання на Далекий Схід", b:2},
-        {t:"Зазнав допитів і тиску слідчих", b:2},
-        {t:"Тужив за Україною на чужині", b:2},
-        {t:"Бачив на Далекому Сході поселення давніх переселенців з України", b:2},
-        {t:"Утік із неволі", b:2},
-        {t:"Після втечі був схоплений у Томську", b:0},
-        {t:"Утік з ешелону дорогою на каторгу", b:1},
-        {t:"За фахом авіатор (льотчик)", b:1},
-        {t:"Навчався на художника, писав вірші", b:0},
-        {t:"Засуджений на 25 років", b:1},
-        {t:"Нащадок гетьмана Дем'яна Многогрішного, засланого до Сибіру", b:1},
-        {t:"Згодом емігрував до Німеччини", b:0}
-      ],
-      after:"Багряний віддав героєві свій досвід: заслання, тайгу, допити, тугу за домом. Але Григорій щасливіший за автора: його втеча вдалася, а Багряного схопили в Томську. Так автор у романі «дописав» власну історію."
-    },
-    {type:"mc", name:"Висновки дослідника", items:[
-      {q:"Яка річка ввижається Григорію в маренні — і тече через рідне місто Багряного?", opts:["Ворскла","Дунай","Амур","Десна"], a:0,
-       hint:"с. 113, марення Григорія.", why:"Ворскла тече через Охтирку. Отже, спогади героя про рідний край — це спогади самого автора."},
-      {q:"Чим втеча автора відрізняється від втечі героя?", opts:["Автора схопили, а Григорій вирвався на волю","Автор тікав літаком, а Григорій пішки","Автор утік із Німеччини","Нічим, вони однакові"], a:0,
-       why:"Багряного перехопила агентура НКВД у Томську. Григорій же, хоч ледь не загинув, урятувався в тайзі."}
-    ]}],
-    fact:"Звіроловство, тайга, українські поселення на Далекому Сході — усе це Багряний бачив на власні очі."
-  },
-  {
-    id:"death", title:"Навзаводи зі смертю", sub:"Розділ третій", text:"death",
-    intro:"Шостий день утечі. Знайди в тексті деталі, віднови хід подій і розгадай, кого врятував Григорій.",
-    parts:[
-    {type:"mc", name:"Читацький детектор: деталі з оригіналу", items:[
-      {q:"Як Григорій, жартуючи сам із собою, себе називає?", opts:["Робінзоном","Мандрівником","Тигроловом","Козаком"], a:0,
-       hint:"с. 112, після того, як йому «приверзлося», що кличуть на допит.", why:"«Кепські твої справи, Робінзоне!» — гумор допомагає втікачеві не впасти духом."},
-      {q:"Якими кільцями було оббите руків'я знайденого ножа?", opts:["Мідними, олив'яними та костяними","Срібними й золотими","Залізними","Дерев'яними"], a:0,
-       hint:"с. 112, опис знахідки між камінням.", why:"Автор детально описує ніж, бо він стане рятівним для героя."},
-      {q:"Чим Григорію доводилося голитися у в'язниці?", opts:["Склом","Бритвою","Ножем","Не голився взагалі"], a:0,
-       hint:"с. 113, перший абзац.", why:"Порівняння з в'язницею нагадує, звідки втік герой, і робить мить свободи ще ціннішою."},
-      {q:"Скільки разів, як думає Григорій, «один хоробрий і сміливий» переміг смерть?", opts:["П'ять разів","Двічі","Сім разів","Жодного"], a:0,
-       hint:"с. 113, роздуми під кедрами.", why:"Він видерся з пащі «дракона», доніс голову аж сюди — і тепер, здається, гине."},
-      {q:"Чим людина в розколині відбивалася від ведмедя?", opts:["Прикладом рушниці","Ножем","Палицею","Камінням"], a:0,
-       hint:"с. 114, сцена на галявині.", why:"Рушниця вже вистрілила, тож мисливець відбивався прикладом. Без Григорія він би не встояв."},
-      {q:"З ким автор порівнює трьох вершників, що мчать уночі?", opts:["З давніми запорожцями","З розбійниками","З духами гір","З вершниками Медвина"], a:0,
-       hint:"с. 115, сцена з вершниками.", why:"Сірки рятують чужого, як колись запорожці рятували товариша. Козацький дух живе і в тайзі."}
-    ]},
-    {type:"order", name:"Відновлюємо послідовність", prompt:"Розташуй події розділу в правильному порядку. Пересувай рядки стрілками.",
-      items:[
-        "Утікач опускає ноги в річку й жадібно п'є воду",
-        "Між камінням знаходить старий мисливський ніж",
-        "Голиться ножем, дивлячись у воду, як у дзеркало",
-        "Знесилений, лягає під кедрами й думає, що це кінець",
-        "У маренні бачить рідний край: Ворсклу, Дніпро, матір",
-        "Чує постріли й відчайдушний крик «Грицьку!»",
-        "Убиває ведмедя ножем і непритомніє"
-      ]},
-    {type:"mc", name:"Розуміємо прочитане", items:[
-      {q:"Кого насправді Григорій урятував від ведмедя?", opts:["Наталку, яку він сприйняв за юнака","Грицька","Старого Сірка","Майора Медвина"], a:0,
-       why:"Григорій був певен, що рятує юнака, а прокинувшись, побачив дівчину. Несподіваний поворот — прийом пригодницького роману."},
-      {q:"Що означає крик «Грицьку!»?", opts:["Наталка кличе на допомогу брата Грицька","Хтось кличе Григорія на ім'я","Так кличуть собаку","Це назва гори"], a:0,
-       why:"Наталка, затиснута ведмедем у розколині, кликала брата."}
-    ]}],
-    fact:"Ведмежа сцена — одна з найнапруженіших у романі: людина з ножем проти звіра, і обоє на межі смерті."
-  },
-  {
-    id:"family", title:"Родина тигроловів", sub:"Розділ четвертий і далі", text:"family",
-    intro:"Григорій прокидається серед людей. Хто вони, звідки — і чому для втікача це справжнє диво?",
-    parts:[
-    {type:"mc", name:"Читацький детектор: деталі з оригіналу", items:[
-      {q:"Що тримала дівчина, яку Григорій побачив, розплющивши очі?", opts:["Червону чарочку","Рушницю","Глечик із молоком","Вишитий рушник"], a:0,
-       hint:"с. 115, кінець сторінки.", why:"Яскрава деталь першої зустрічі з Наталкою, яка тут же насмішкувато до нього заговорила."},
-      {q:"Скільки верст, за словами батька, до міста?", opts:["Близько 400","40","4000","10"], a:0,
-       hint:"с. 116, розмова з батьком.", why:"«Та ні! Це близько» — для тайги 400 верст справді недалеко."},
-      {q:"У якому році Сірки сіли в Одесі на корабель?", opts:["1887","1917","1861","1905"], a:0,
-       hint:"с. 117, розповідь матері.", why:"Переселенці пливли через багато морів, щоб дістатися Далекого Сходу."},
-      {q:"Скільки людей налічувала колись родина діда Сірка?", opts:["П'ятдесят","Десять","Сто","Двадцять п'ять"], a:0,
-       hint:"с. 118, спогади матері про давнє життя.", why:"Сім синів, невістки, онуки — «Сірків куток — то ціле село»."},
-      {q:"Яку квітку з України береже мати як пам'ять?", opts:["Васильки","Чорнобривці","Барвінок","Мак"], a:0,
-       hint:"с. 119, мати згадує, чого немає «тут».", why:"Пучечок васильків, завезений з України, «пахне рідним краєм»."},
-      {q:"Що попросила Наталка привезти їй із Хабаровська замість подарунків?", opts:["Пістолет","Хустку","Книжку","Намисто"], a:0,
-       hint:"с. 120, поїздка до Хабаровська.", why:"Наталка — дівчина тайги: їй потрібна зброя, а не парфуми."}
-    ]},
-    {type:"mc", name:"Розуміємо прочитане", items:[
-      {q:"Чому Григорій злякався, почувши «Київський район»?", opts:["Подумав, що його повернули до київської в'язниці","Він ненавидить Київ","Там живе Медвин","Він не знав, де Київ"], a:0,
-       why:"Йому згадалася Лук'янівська в'язниця: втікав — і потрапив назад? Але «Київським» називали тутешній край."},
-      {q:"Як переселенці називали свій далекосхідний край?", opts:["«Другою Україною»","«Сибірським раєм»","«Землею тигрів»","«Новим світом»"], a:0,
-       why:"Вони давали селам назви з рідного краю: Київ, Чернігівка, Полтавка."},
-      {q:"Хто сказав: «У сміливих щастя завжди є»?", opts:["Стара Сірчиха, мати Наталки","Наталка","Медвин","Сам Григорій"], a:0,
-       why:"Ці слова — немов девіз роману: сміливість і віра рятують навіть на краю світу."},
-      {q:"Чому Сірки не розпитували Григорія, хто він?", opts:["З природної делікатності, хоч і здогадувалися, що він утікач","Їм було байдуже","Вони вже все знали від Медвина","Боялися його"], a:0,
-       why:"Прості люди без слів зрозуміли його біду. Григорій був їм за це вдячний."},
-      {q:"Хто знайшов Григорія, коли він заблукав узимку в тайзі?", opts:["Наталка з собакою Заливаєм","Грицько","Старий Сірко","Мисливці з села"], a:0,
-       why:"Григорій прокинувся від того, що його лизав Натальчин пес Заливай."},
-      {q:"Що прочитав Григорій у «лісовій газеті» на снігу?", opts:["Напис із «привітом» від Медвина","Оголошення про полювання на тигрів","Лист від матері","Карту тайги"], a:0,
-       why:"Переслідувач поруч! Так автор знову підвищує напругу."}
-    ]}],
-    fact:"Переселенці з України справді жили на Далекому Сході. Цей край називали Зеленим Клином."
-  },
-  {
-    id:"theory", title:"Теорія літератури", sub:"Пригодницький роман", text:"theory",
-    intro:"Час для інструментів дослідника. З'ясуй, що робить роман пригодницьким, — і знайди це в «Тигроловах».",
-    parts:[
-      {type:"multi", name:"Ознаки жанру", prompt:"Обери всі ознаки пригодницького роману (їх п'ять).",
-        opts:[
-          {t:"Утечі", ok:true},{t:"Переслідування", ok:true},{t:"Атмосфера таємничості й загадковості", ok:true},
-          {t:"Викрадення", ok:true},{t:"Ситуації припущення й розгадування", ok:true},
-          {t:"Віршована форма", ok:false},{t:"Спокійний сюжет без несподіванок", ok:false},{t:"Ліричний герой замість сюжету", ok:false}
-        ]},
-      {type:"match", name:"Знаходимо ознаки в романі", prompt:"Яку ознаку пригодницького роману ілюструє кожен епізод?",
-        choices:["утеча","переслідування","таємничість","припущення й розгадування","несподіваний поворот","початок із кульмінації"],
-        rows:[
-          {t:"Григорій тікає з ешелону дорогою на каторгу", a:0},
-          {t:"Медвин дізнається про втечу й не може забути втікача", a:1},
-          {t:"Троє вершників уночі везуть когось упоперек сідла", a:2},
-          {t:"Читач не знає, за що засудили Григорія, і дізнається поступово", a:3},
-          {t:"«Юнак» у розколині виявляється дівчиною", a:4},
-          {t:"Роман одразу починається з утечі героя", a:5}
-        ]},
-      {type:"mc", name:"Перевір себе", items:[
-        {q:"Хто першим в українській літературі почав розробляти жанр пригодницького роману?", opts:["Пантелеймон Куліш («Чорна рада»)","Всеволод Нестайко","Михайло Коцюбинський","Іван Франко"], a:0,
-         hint:"с. 111, другий абзац теорії.", why:"«Чорна рада» Куліша — перший український роман із пригодницьким сюжетом."}
-      ]}
-    ],
-    fact:"Ти вже знаєш цей жанр: «Тореадори з Васюківки», «За сестрою», «Дорогою ціною» — теж пригодницькі."
-  },
-  {
-    id:"genre", title:"Жанрові особливості", sub:"Чому роман такий захопливий", text:"genre",
-    intro:"Останній перевал перед іспитом. Подивися на роман цілком: сюжетні лінії, пейзаж, ідея.",
-    parts:[{type:"mc", name:"Розуміємо роман цілком", items:[
-      {q:"Яка сюжетна лінія розвивається паралельно з головною (переслідуванням Григорія)?", opts:["Романтична: почуття Григорія і Наталки","Історія життя Медвина","Подорож Сірків з Одеси","Пригоди собаки Заливая"], a:0,
-       hint:"с. 109, абзац про композицію.", why:"Роман має дві сюжетні лінії: полювання Медвина і кохання Григорія та Наталки."},
-      {q:"Яку роль відіграють пейзажі тайги?", opts:["Контрастують із настроєм героїв або підсилюють його й напругу подій","Лише прикрашають текст","Пояснюють, як ловити тигрів","Їх у романі немає"], a:0,
-       hint:"с. 109, кінець абзацу про композицію.", why:"Пейзаж у романі — не тло, а учасник дії."},
-      {q:"Що символізують два потяги з першого розділу?", opts:["Два світи тоталітарної держави: безправних в'язнів і привілейовану еліту","Минуле й майбутнє Григорія","Дві сюжетні лінії","Схід і Захід"], a:0,
-       hint:"с. 110, перший повний абзац.", why:"Ешелон смерті й комфортний експрес — нелюдський образ радянської імперії."},
-      {q:"Що робить роман автобіографічним?", opts:["У сюжеті відбито власний досвід автора: заслання, тайгу, втечу, тугу за Україною","Автор пише про себе від першої особи","Головного героя звуть Іван Багряний","Це щоденник автора"], a:0,
-       why:"Григорій — не копія автора, але багато пережитого Багряним стало подіями роману."},
-      {q:"Чому «Тигроловів» називають саме українським пригодницьким романом?", opts:["Він український за духом, ідеями, почуттями й характерами","Бо його надрукували лише в Україні","Бо дія відбувається в Києві","Бо в ньому немає пригод"], a:0,
-       hint:"с. 111, останні рядки теорії.", why:"Так оцінив роман Юрій Шевельов."},
-      {q:"Яка головна ідея роману?", opts:["За будь-яких обставин людина може й повинна залишатися Людиною","Сильніший завжди перемагає","Від долі не втечеш","Полювати на тигрів небезпечно"], a:0,
-       hint:"с. 109, другий абзац.", why:"Григорій не озлобився, зберіг доброту й гідність, хоч система хотіла зробити з нього «гвинтик»."}
-    ]}],
-    fact:"Роман переклали англійською, німецькою, голландською та данською, ним цікавився Голлівуд."
-  }
+const NMT=[
+ {q:`На координатній площині задано вектори ${V('a')} = (3; −4) і ${V('b')} = (−2; 5). Знайдіть координати вектора ${V('c')} = ${V('a')} + ${V('b')}.`,o:['(1; 1)','(5; −9)','(−5; 9)','(1; −1)'],a:0,e:`Додаємо відповідні координати: (3 + (−2); −4 + 5) = (1; 1).`},
+ {q:`Знайдіть модуль вектора ${V('a')} = (6; −8).`,o:['7','10','14','100'],a:1,e:`√(6² + (−8)²) = √(36 + 64) = √100 = 10.`},
+ {q:`За якого значення x вектори ${V('a')} = (x; 6) і ${V('b')} = (−2; 3) колінеарні?`,o:['−4','−2','2','4'],a:0,e:`Координати колінеарних векторів пропорційні: x : (−2) = 6 : 3 = 2, тож x = −4.`}
 ];
-
-const EXAM = [
-  {q:"Справжнє прізвище Івана Багряного:", opts:["Лозов'ягін","Многогрішний","Сірко","Медвин"], a:0},
-  {q:"За скільки днів Багряний написав роман?", opts:["За 14 днів","За 14 тижнів","За 14 місяців","За 14 років"], a:0},
-  {q:"Перша назва роману:", opts:["«Звіролови»","«Мисливці»","«Тайга»","«Сад Гетсиманський»"], a:0},
-  {q:"Яку ознаку пригодницького роману ілюструє початок «Тигроловів» з утечі героя?", opts:["Сюжет починається з кульмінації","Розлогу експозицію","Ліричний відступ","Щасливу розв'язку"], a:0},
-  {q:"Життєве кредо Григорія:", opts:["«Краще вмирати біжучи, ніж жити гниючи»","«Тихіше їдеш — далі будеш»","«Моя хата скраю»","«Від долі не втечеш»"], a:0},
-  {q:"Чим Григорій убив ведмедя?", opts:["Ножем, знайденим біля річки","Рушницею Наталки","Каменем","Сокирою"], a:0},
-  {q:"Що з автобіографії Багряного НЕ збігається з долею Григорія?", opts:["Автора після втечі схопили в Томську","Заслання на Далекий Схід","Туга за Україною","Допити слідчих"], a:0},
-  {q:"Як Сірки називали свій новий край?", opts:["«Другою Україною»","«Сибірським раєм»","«Тигрячим царством»","«Краєм світу»"], a:0},
-  {q:"Хто з героїв утілює тоталітарну систему?", opts:["Майор НКВД Медвин","Грицько Сірко","Стара Сірчиха","Наталка"], a:0},
-  {q:"Яка романтична сюжетна лінія є в романі?", opts:["Почуття Григорія і Наталки","Кохання Медвина","Весілля Грицька","Її немає"], a:0}
+const LIFE=[
+ ['🧭','Навігація і GPS','Навігатор знає напрямок і відстань до цілі — це вектор переміщення. Маршрут — це сума таких векторів.'],
+ ['🏗️','Будівництво','Інженери додають вектори сил, що діють на балки й опори, щоб будинок і міст були міцними.'],
+ ['✈️','Авіація і флот','Пілот і капітан враховують вектор власної швидкості та вектор вітру чи течії.'],
+ ['⚽','Спорт','Напрямок і сила удару по м’ячу — вектор. Тренери аналізують траєкторії за відео.'],
+ ['🌬️','Вітроенергетика','Вітряки повертають до вектора вітру, щоб отримати якнайбільше енергії.'],
+ ['🤖','Роботи та дрони','Дрону й роботу-пилососу задають вектор руху: куди й наскільки зміститися.'],
+ ['🎮','Ігри та 3D-графіка','Кожен рух персонажа в грі — додавання вектора до координат об’єкта.'],
+ ['📱','Твій смартфон','Свайп по екрану — вектор від точки дотику до точки, де палець відпустили.']
 ];
-const EXAM_PASS = 7;
+const TF=[
+ [`Координати вектора ${V('AB')} — це (x<sub>1</sub> − x<sub>2</sub>; y<sub>1</sub> − y<sub>2</sub>), тобто «початок мінус кінець».`,false,'Навпаки: кінець мінус початок.'],
+ ['У рівних векторів відповідні координати рівні.',true,''],
+ [`Модуль вектора ${V('a')}(x; y) дорівнює √(x² + y²).`,true,''],
+ ['Модуль вектора може бути від’ємним числом.',false,'Модуль — це довжина, вона не буває від’ємною.'],
+ [`Нульовий вектор має координати (0; 0).`,true,''],
+ [`Вектори (2; −3) і (−3; 2) рівні.`,false,'Відповідні координати різні: 2 ≠ −3.']
+];
+const CHECKS=[['🧠','Мозок увімкнено на максимум'],['📓','Зошит для геніальних ідей'],['✏️','Олівець і лінійка'],['🚀','Готовність підкорити тему']];
 
-/* ===================== СТАН ===================== */
-const KEY = "tyhrolovy-trainer-v1";
-let S = load() || {name:"", gender:"m", cls:"9", done:{}, exam:null};
-function load(){ try{ return JSON.parse(localStorage.getItem(KEY)); }catch(e){ return null; } }
-function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
-
-const app = document.getElementById("app");
-const pawSvg = '<svg viewBox="0 0 64 64" aria-hidden="true"><use href="#paw"/></svg>';
-function esc(s){ return String(s).replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
-function shuffle(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
-const LETTERS = ["А","Б","В","Г","Ґ","Д"];
-function g(m,f){ return S.gender==="f"?f:m; }
-
-function partMax(p){
-  if(p.type==="mc") return p.items.length*2;
-  if(p.type==="sort") return p.items.length;
-  if(p.type==="order") return p.items.length;
-  if(p.type==="multi") return p.opts.length;
-  if(p.type==="match") return p.rows.length;
-  return 0;
-}
-function stationMax(st){ return st.parts.reduce((s,p)=>s+partMax(p),0); }
-const TOTAL_MAX = STATIONS.reduce((s,st)=>s+stationMax(st),0) + EXAM.length*2;
-function totalTracks(){
-  let t = Object.values(S.done).reduce((a,b)=>a+b,0);
-  if(S.exam && S.exam.passed) t += S.exam.score*2;
-  return t;
-}
-function updateTracks(){ document.getElementById("trackCount").textContent = totalTracks(); }
-function stationsDone(){ return STATIONS.filter(st=>st.id in S.done).length; }
-function go(view, arg){ window.scrollTo({top:0, behavior:"instant" in window ? "instant":"auto"}); render(view,arg); }
-
-/* ===================== ЕКРАНИ ===================== */
-function render(view, arg){
-  updateTracks();
-  if(view==="start") return renderStart();
-  if(view==="map") return renderMap();
-  if(view==="station") return renderStation(arg);
-  if(view==="exam") return renderExam();
-  if(view==="cert") return renderCert();
-}
-
-function renderStart(){
-  app.innerHTML = `
-  <section class="hero">
-    <div class="eyebrow" style="color:var(--tiger)">Тренажер-квест</div>
-    <h1>Тигролови: маршрут утікача</h1>
-    <p class="lead">Пройди шлях Григорія Многогрішного: від ешелону смерті до хати тигроловів. На кожній станції спершу читаєш уривок роману в підручнику, а потім розв'язуєш завдання, які без уважного читання не виконати. Збирай тигрячі сліди, склади іспит і отримай іменний сертифікат.</p>
-    <div class="topic"><b>Тема:</b> Автобіографічні події в сюжеті роману Івана Багряного «Тигролови». Жанрові особливості твору. Теорія літератури: пригодницький роман.</div>
-  </section>
-  <div class="card stack">
-    <div class="eyebrow">Перед дорогою</div>
-    <label class="f" for="nm">Твоє ім'я та прізвище (так буде в сертифікаті)
-      <input id="nm" type="text" maxlength="40" autocomplete="name" placeholder="Наприклад: Олена Коваль" value="${esc(S.name)}">
-    </label>
-    <div class="row">
-      <div class="seg" role="group" aria-label="Звертання">
-        <button type="button" id="gm" aria-pressed="${S.gender!=='f'}">Я учень</button>
-        <button type="button" id="gf" aria-pressed="${S.gender==='f'}">Я учениця</button>
-      </div>
-      <label class="f" for="cl" style="flex-direction:row;align-items:center;gap:8px">Клас
-        <input id="cl" type="text" maxlength="6" value="${esc(S.cls||'9')}" style="width:90px">
-      </label>
-    </div>
-    <div class="rules">
-      <div class="rule"><b>6 станцій + іспит</b>Станції відкриваються по черзі, як стежка в тайзі.</div>
-      <div class="rule"><b>Спершу — текст</b>Читай уривок у підручнику (паперовому чи електронному). Поруч є стислий переказ, але деталі — лише в оригіналі.</div>
-      <div class="rule"><b>Тигрячі сліди</b>Правильно з першої спроби — 2 сліди, з другої — 1.</div>
-      <div class="rule"><b>Сертифікат</b>Склади іспит (від ${EXAM_PASS} з ${EXAM.length}) й отримай іменний сертифікат.</div>
-    </div>
-    <div class="row"><button class="btn" id="go">${stationsDone()? "Продовжити маршрут" : "Вирушити в тайгу"}</button><span id="err" class="small" style="color:var(--bad);font-weight:700"></span></div>
-  </div>`;
-  const nm = document.getElementById("nm");
-  document.getElementById("gm").onclick = ()=>{S.gender="m"; save(); renderStart();};
-  document.getElementById("gf").onclick = ()=>{S.gender="f"; save(); renderStart();};
-  nm.addEventListener("input", ()=>{ S.name = nm.value; save(); });
-  document.getElementById("cl").addEventListener("input", e=>{ S.cls = e.target.value; save(); });
-  document.getElementById("go").onclick = ()=>{
-    S.name = nm.value.trim();
-    if(S.name.length<2){ document.getElementById("err").textContent = "Впиши ім'я — воно потрібне для сертифіката."; nm.focus(); return; }
-    save(); go("map");
-  };
-}
-
-function renderMap(){
-  const n = stationsDone();
-  const pct = Math.round(((n + (S.exam&&S.exam.passed?1:0)) / (STATIONS.length+1))*100);
-  let html = `
-  <section class="hero" style="padding-bottom:16px">
-    <div class="eyebrow" style="color:var(--tiger)">Маршрут · ${esc(S.name)}</div>
-    <h2>Карта тайги</h2>
-    <p class="lead" style="font-size:16px">Пройдено ${n} з ${STATIONS.length} станцій. ${n===STATIONS.length? "Іспит тигролова відкрито!" : "Наступна станція чекає."}</p>
-    <div class="progress" style="margin-top:14px" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"><i style="width:${pct}%"></i></div>
-  </section>
-  <div class="map">`;
-  STATIONS.forEach((st,i)=>{
-    const done = st.id in S.done;
-    const open = i===0 || (STATIONS[i-1].id in S.done);
-    const cur = open && !done;
-    html += `<button class="stop ${done?'done':''} ${cur?'current':''}" data-i="${i}" ${open?'':'disabled'}>
-      <span class="num">Станція ${i+1}</span>
-      <span class="name">${esc(st.title)}</span>
-      <span class="sub">${esc(st.sub)}</span>
-      <span class="state">${done? `Пройдено · ${S.done[st.id]} з ${stationMax(st)} слідів` : open? "Вирушити →" : "Закрито"}</span>
-    </button>`;
-  });
-  const examOpen = n===STATIONS.length;
-  html += `<button class="stop exam ${S.exam&&S.exam.passed?'done':''}" id="examBtn" ${examOpen?'':'disabled'}>
-      <span class="num">Фінал</span>
-      <span class="name">Іспит тигролова</span>
-      <span class="sub">${EXAM.length} питань без підказок</span>
-      <span class="state">${S.exam&&S.exam.passed? `Складено · ${S.exam.score} з ${EXAM.length}` : examOpen? "Скласти іспит →" : "Відкриється після 6 станцій"}</span>
-    </button></div>
-  <div class="footer-actions" style="margin-top:20px">
-    <button class="btn dark-ghost" id="back">Змінити ім'я</button>
-    ${S.exam&&S.exam.passed? '<button class="btn" id="toCert">Мій сертифікат</button>' : ''}
-  </div>`;
-  app.innerHTML = html;
-  app.querySelectorAll(".stop[data-i]").forEach(b=> b.onclick = ()=> go("station", +b.dataset.i));
-  const eb = document.getElementById("examBtn"); if(examOpen) eb.onclick = ()=> go("exam");
-  document.getElementById("back").onclick = ()=> go("start");
-  const tc = document.getElementById("toCert"); if(tc) tc.onclick = ()=> go("cert");
-}
-
-/* ---------- Станція ---------- */
-function renderStation(i){
-  const st = STATIONS[i];
-  const tx = TEXTS[st.text];
-  let partIndex = 0, earned = 0;
-
-  app.innerHTML = `
-  <section class="hero" style="padding-bottom:16px">
-    <div class="eyebrow" style="color:var(--tiger)">Станція ${i+1} з ${STATIONS.length} · ${esc(st.sub)}</div>
-    <h2>${esc(st.title)}</h2>
-    <p class="lead" style="font-size:16px">${esc(st.intro)}</p>
-  </section>
-  <div class="card stack">
-    <div class="readbox" id="readbox">
-      <div class="eyebrow" style="margin:0">Крок 1 · Читаємо оригінал</div>
-      <div class="book">Підручник, с. ${tx.pages}</div>
-      <p>Прочитай ${esc(tx.what)}. Завдання «Читацький детектор» перевіряють, наскільки уважно ти читав(-ла): відповіді — лише в тексті.</p>
-      <p class="small"><b>Немає паперового підручника?</b> <a href="${EBOOK}" target="_blank" rel="noopener">Відкрий електронний підручник О. Авраменка (9 клас)</a> → натисни «Читати» → догорни до сторінки <b>${tx.pages}</b> (номер надруковано внизу сторінки).</p>
-      ${tx.chapter? `<p class="small"><b>Або повний текст роману на одній сторінці:</b> <a href="${FULLTEXT}" target="_blank" rel="noopener">відкрий роман «Тигролови»</a> → натисни Ctrl+F (на телефоні: меню → «Знайти на сторінці») → введи <b>${esc(tx.chapter)}</b>. У повному тексті розділ довший, ніж у підручнику, — читай його цілком, це лише цікавіше!</p>` : ""}
-      <p class="small">Не вдається відкрити підручник? Прочитай стислий переказ нижче. Але пам'ятай: для «Читацького детектора» потрібен саме текст із підручника.</p>
-      <div class="row"><button class="btn" id="readDone">Я ${g("прочитав","прочитала")} — до завдань</button></div>
-    </div>
-    <details class="text" open>
-      <summary><span>Стислий переказ <span class="hint">· ${esc(tx.title.replace(/ — стислий переказ$/,""))}</span></span></summary>
-      <div class="text-body">${tx.html}<p class="source">Це лише стислий переказ. Повний текст — у підручнику, с. ${tx.pages}.</p></div>
-    </details>
-    <div id="task" hidden></div>
-  </div>
-  <div class="footer-actions" style="margin-top:16px"><button class="btn dark-ghost" id="toMap">← До карти</button></div>`;
-  document.getElementById("toMap").onclick = ()=> go("map");
-  CUR_TEXT = st.text;
-  const task = document.getElementById("task");
-
-  function nextPart(points){
-    earned += points;
-    partIndex++;
-    if(partIndex < st.parts.length) runPart();
-    else finish();
+/* ================= coordinate plane ================= */
+function makePlane(el,cfg){
+  const R=cfg.R||7, W=560, s=W/(2*R);
+  const X=x=>(x+R)*s, Y=y=>(R-y)*s;
+  const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+  svg.setAttribute('viewBox',`0 0 ${W} ${W}`);svg.classList.add('plane');
+  svg.setAttribute('preserveAspectRatio','xMidYMid meet');
+  el.appendChild(svg);
+  let drag=null;
+  function arrow(x1,y1,x2,y2,c,w=4){
+    const a=Math.atan2(Y(y2)-Y(y1),X(x2)-X(x1)),L=16;
+    const ex=X(x2)-Math.cos(a)*6,ey=Y(y2)-Math.sin(a)*6;
+    const p1=[ex-L*Math.cos(a-0.4),ey-L*Math.sin(a-0.4)],p2=[ex-L*Math.cos(a+0.4),ey-L*Math.sin(a+0.4)];
+    if(x1===x2&&y1===y2)return '';
+    return `<line x1="${X(x1)}" y1="${Y(y1)}" x2="${ex-Math.cos(a)*8}" y2="${ey-Math.sin(a)*8}" stroke="${c}" stroke-width="${w}" stroke-linecap="round"/>
+      <polygon points="${ex},${ey} ${p1} ${p2}" fill="${c}"/>`;
   }
-  function runPart(){
-    const p = st.parts[partIndex];
-    const label = `Завдання ${partIndex+1} з ${st.parts.length}${p.name? " · "+esc(p.name) : ""}`;
-    if(p.type==="mc") return mcPart(task, p, label, nextPart);
-    if(p.type==="sort") return sortPart(task, p, label, nextPart);
-    if(p.type==="order") return orderPart(task, p, label, nextPart);
-    if(p.type==="multi") return multiPart(task, p, label, nextPart);
-    if(p.type==="match") return matchPart(task, p, label, nextPart);
-  }
-  function finish(){
-    const max = stationMax(st);
-    const prev = S.done[st.id];
-    S.done[st.id] = Math.max(prev||0, earned);
-    save(); updateTracks();
-    const ratio = earned/max;
-    const verdict = ratio>=.9 ? "Блискуче! Справжній слідопит." : ratio>=.7 ? "Добре! Стежку пройдено впевнено." : "Станцію пройдено. Можеш повторити, щоб зібрати більше слідів.";
-    const last = i===STATIONS.length-1;
-    app.innerHTML = `
-    <section class="hero" style="padding-bottom:16px">
-      <div class="eyebrow" style="color:var(--tiger)">Станцію ${i+1} пройдено</div>
-      <h2>${esc(st.title)}</h2>
-    </section>
-    <div class="card stack">
-      <div class="row" style="justify-content:space-between">
-        <div><div class="big-score">${earned} / ${max}</div><div class="muted">тигрячих слідів на цій станції</div></div>
-        <div class="paws" aria-hidden="true">${pawSvg.repeat(Math.max(1,Math.round(ratio*8)))}</div>
-      </div>
-      <p style="font-weight:800;font-size:18px">${verdict}</p>
-      <div class="insight"><b>ЧИ ЗНАЄШ ТИ?</b>${esc(st.fact)}</div>
-      <div class="row">
-        <button class="btn" id="nx">${last? "До іспиту тигролова →" : "Наступна станція →"}</button>
-        <button class="btn ghost" id="rp">Пройти ще раз</button>
-        <button class="btn ghost" id="mp">Карта</button>
-      </div>
-    </div>`;
-    document.getElementById("nx").onclick = ()=> last ? go("exam") : go("station", i+1);
-    document.getElementById("rp").onclick = ()=> go("station", i);
-    document.getElementById("mp").onclick = ()=> go("map");
-  }
-  document.getElementById("readDone").onclick = ()=>{
-    const rb = document.getElementById("readbox"); rb.classList.add("done");
-    document.getElementById("readDone").remove();
-    task.hidden = false; runPart(); task.scrollIntoView({behavior:"smooth", block:"start"});
-  };
-}
-let onMistake = ()=>{};
-let CUR_TEXT = "dragon";
-
-/* ---------- Типи завдань ---------- */
-function mcPart(el, p, label, done){
-  let k = 0, pts = 0;
-  const items = p.items.map(it=>{
-    const order = shuffle(it.opts.map((_,j)=>j));
-    return {...it, order};
-  });
-  function show(){
-    const it = items[k];
-    let tries = 0, solved = false;
-    el.innerHTML = `
-      <div class="stack">
-        <div class="qhead"><div class="eyebrow" style="margin:0">${label}</div><div class="qcount">Питання ${k+1} з ${items.length}</div></div>
-        <div class="qtext">${esc(it.q)}</div>
-        ${it.quote? `<div class="quote">${esc(it.quote)}</div>`:""}
-        <div class="opts">${it.order.map((oi,j)=>`<button class="opt" data-oi="${oi}"><span class="k">${LETTERS[j]}</span><span>${esc(it.opts[oi])}</span></button>`).join("")}</div>
-        <div id="fb"></div>
-      </div>`;
-    const fb = el.querySelector("#fb");
-    el.querySelectorAll(".opt").forEach(b=> b.onclick = ()=>{
-      if(solved) return;
-      tries++;
-      const oi = +b.dataset.oi;
-      if(oi===it.a){
-        solved = true;
-        const got = tries===1?2:tries===2?1:0;
-        pts += got;
-        b.classList.add("right");
-        el.querySelectorAll(".opt").forEach(x=> x.disabled = true);
-        fb.innerHTML = `<div class="feedback ok"><b>${tries===1? "Точно в ціль! +2 сліди" : got? "Так, правильно. +1 слід" : "Правильно, але сліди втрачено"}</b>${esc(it.why)}</div>
-          <div class="row" style="margin-top:12px"><button class="btn" id="nq">${k<items.length-1? "Далі →" : "Завершити завдання →"}</button></div>`;
-        updateTracksPreview(got);
-        const nq = el.querySelector("#nq"); nq.focus();
-        nq.onclick = ()=>{ k++; if(k<items.length) show(); else done(pts); };
-      } else {
-        b.classList.add("wrong","shake"); b.disabled = true;
-        onMistake();
-        fb.innerHTML = `<div class="feedback no"><b>Не зовсім. Спробуй ще!</b>${it.hint? "Де шукати: підручник, "+esc(it.hint) : "Перечитай уривок у підручнику (с. "+esc(TEXTS[CUR_TEXT].pages)+") або стислий переказ вище."}</div>`;
-      }
-    });
-  }
-  show();
-}
-let previewExtra = 0;
-function updateTracksPreview(add){ previewExtra += add; document.getElementById("trackCount").textContent = totalTracks() + previewExtra; }
-const _go = go;
-go = function(v,a){ previewExtra = 0; _go(v,a); };
-
-function sortPart(el, p, label, done){
-  const items = shuffle(p.items.map((it,j)=>({...it, j})));
-  const pick = {}; let checked = 0, firstScore = null;
   function draw(){
-    el.innerHTML = `
-      <div class="stack">
-        <div class="eyebrow" style="margin:0">${label}</div>
-        <div class="qtext">${esc(p.prompt)}</div>
-        <div class="stack" style="gap:10px">${items.map(it=>`
-          <div class="sort-item" id="si${it.j}">
-            <div class="t">${esc(it.t)}</div>
-            <div class="chips" role="group" aria-label="${esc(it.t)}">${p.bins.map((b,bi)=>`<button class="chip" data-j="${it.j}" data-b="${bi}" aria-pressed="${pick[it.j]===bi}">${esc(b)}</button>`).join("")}</div>
-          </div>`).join("")}</div>
-        <div id="fb"></div>
-        <div class="row"><button class="btn" id="chk">Перевірити</button><span class="small muted" id="left"></span></div>
-      </div>`;
-    el.querySelectorAll(".chip").forEach(c=> c.onclick = ()=>{
-      const j=+c.dataset.j, b=+c.dataset.b; pick[j]=b;
-      c.parentElement.querySelectorAll(".chip").forEach(x=> x.setAttribute("aria-pressed", x===c));
-      const box = document.getElementById("si"+j); box.classList.remove("right","wrong");
-      leftCount();
+    let h='';
+    for(let i=-R;i<=R;i++){h+=`<line x1="${X(i)}" y1="0" x2="${X(i)}" y2="${W}" stroke="#e7ebf4"/><line x1="0" y1="${Y(i)}" x2="${W}" y2="${Y(i)}" stroke="#e7ebf4"/>`}
+    h+=`<line x1="0" y1="${Y(0)}" x2="${W}" y2="${Y(0)}" stroke="#16213e" stroke-width="2"/><line x1="${X(0)}" y1="0" x2="${X(0)}" y2="${W}" stroke="#16213e" stroke-width="2"/>`;
+    h+=`<polygon points="${W},${Y(0)} ${W-12},${Y(0)-6} ${W-12},${Y(0)+6}" fill="#16213e"/><polygon points="${X(0)},0 ${X(0)-6},12 ${X(0)+6},12" fill="#16213e"/>`;
+    h+=`<text x="${W-16}" y="${Y(0)+22}" font-weight="700" font-size="16" fill="#16213e">x</text><text x="${X(0)+10}" y="16" font-weight="700" font-size="16" fill="#16213e">y</text>`;
+    for(let i=-R+1;i<R;i++){if(i===0)continue;
+      h+=`<text x="${X(i)}" y="${Y(0)+15}" text-anchor="middle" font-size="11" fill="#8a90a6">${fmt(i)}</text>`;
+      h+=`<text x="${X(0)-6}" y="${Y(i)+4}" text-anchor="end" font-size="11" fill="#8a90a6">${fmt(i)}</text>`;}
+    h+=`<text x="${X(0)-6}" y="${Y(0)+15}" text-anchor="end" font-size="11" fill="#8a90a6">0</text>`;
+    const P=cfg.pts;
+    (cfg.vecs||[]).forEach(([a,b,c,legs])=>{
+      const A=P[a],B=P[b];
+      if(legs&&(A.x!==B.x||A.y!==B.y)){
+        h+=`<path d="M${X(A.x)} ${Y(A.y)} H${X(B.x)} V${Y(B.y)}" fill="none" stroke="${c}" stroke-opacity=".55" stroke-width="2.5" stroke-dasharray="7 6"/>`;
+        const dx=B.x-A.x,dy=B.y-A.y;
+        if(dx)h+=`<text x="${(X(A.x)+X(B.x))/2}" y="${Y(A.y)+(dy>0?22:-10)}" text-anchor="middle" font-weight="800" font-size="15" fill="#ff6b4a">x = ${fmt(dx)}</text>`;
+        if(dy)h+=`<text x="${X(B.x)+(dx>=0?10:-10)}" y="${(Y(A.y)+Y(B.y))/2+5}" text-anchor="${dx>=0?'start':'end'}" font-weight="800" font-size="15" fill="#12a594">y = ${fmt(dy)}</text>`;
+      }
+      h+=arrow(A.x,A.y,B.x,B.y,c);
     });
-    leftCount();
-    el.querySelector("#chk").onclick = check;
+    for(const k in P){const p=P[k];
+      h+=`<g class="${p.drag?'pt':''}" data-p="${k}">${p.drag?`<circle cx="${X(p.x)}" cy="${Y(p.y)}" r="20" fill="${p.c}" fill-opacity=".14"/>`:''}
+        <circle cx="${X(p.x)}" cy="${Y(p.y)}" r="${p.drag?8:6}" fill="${p.c}" stroke="#fff" stroke-width="2.5"/>
+        <text x="${X(p.x)+11}" y="${Y(p.y)-11}" font-weight="800" font-size="16" fill="${p.c}" paint-order="stroke" stroke="#fff" stroke-width="4">${k}(${fmt(p.x)}; ${fmt(p.y)})</text></g>`;}
+    svg.innerHTML=h;
   }
-  function leftCount(){
-    const n = items.filter(it=> pick[it.j]===undefined).length;
-    el.querySelector("#left").textContent = n? `Ще не розподілено: ${n}` : "";
-    el.querySelector("#chk").disabled = n>0;
-  }
-  function check(){
-    let ok = 0;
-    items.forEach(it=>{
-      const box = document.getElementById("si"+it.j);
-      const r = pick[it.j]===it.b;
-      box.classList.toggle("right", r); box.classList.toggle("wrong", !r);
-      if(r) ok++;
-    });
-    checked++;
-    if(firstScore===null){ firstScore = ok; updateTracksPreview(ok); }
-    const fb = el.querySelector("#fb");
-    if(ok===items.length){
-      el.querySelectorAll(".chip").forEach(c=> c.disabled = true);
-      fb.innerHTML = `<div class="feedback ok"><b>Усе правильно! ${checked===1?"":"(Сліди зараховано за першу перевірку: "+firstScore+")"}</b></div>
-        ${p.after? `<div class="insight" style="margin-top:12px"><b>ВИСНОВОК ДОСЛІДНИКА</b>${esc(p.after)}</div>`:""}
-        <div class="row" style="margin-top:12px"><button class="btn" id="nq">Далі →</button></div>`;
-      el.querySelector("#chk").style.display="none";
-      el.querySelector("#nq").onclick = ()=> done(firstScore);
-    } else {
-      onMistake(); fb.innerHTML = `<div class="feedback no"><b>Правильно ${ok} з ${items.length}.</b>Червоні рядки зміни й перевір ще раз. Перечитай с. 107–108 підручника.</div>`;
-    }
-  }
-  draw();
+  function toU(e){const r=svg.getBoundingClientRect();const size=Math.min(r.width,r.height);
+    const ox=r.left+(r.width-size)/2,oy=r.top+(r.height-size)/2;
+    const sx=(e.clientX-ox)/size*W,sy=(e.clientY-oy)/size*W;
+    return {x:Math.max(-R+1,Math.min(R-1,Math.round(sx/s-R))),y:Math.max(-R+1,Math.min(R-1,Math.round(R-sy/s)))};}
+  svg.addEventListener('pointerdown',e=>{const g=e.target.closest('[data-p]');if(!g)return;const k=g.dataset.p;if(!cfg.pts[k].drag)return;
+    drag=k;svg.setPointerCapture(e.pointerId);e.preventDefault();});
+  svg.addEventListener('pointermove',e=>{if(!drag)return;const u=toU(e);const p=cfg.pts[drag];if(p.x!==u.x||p.y!==u.y){p.x=u.x;p.y=u.y;draw();cfg.onChange&&cfg.onChange(cfg.pts)}});
+  const end=()=>{drag=null};svg.addEventListener('pointerup',end);svg.addEventListener('pointercancel',end);
+  draw();cfg.onChange&&cfg.onChange(cfg.pts);
+  return {draw};
 }
 
-function orderPart(el, p, label, done){
-  let cur = shuffle(p.items.map((t,j)=>j));
-  while(cur.every((v,j)=>v===j)) cur = shuffle(cur);
-  let firstScore = null, checked = 0;
-  function draw(marks){
-    el.innerHTML = `
-      <div class="stack">
-        <div class="eyebrow" style="margin:0">${label}</div>
-        <div class="qtext">${esc(p.prompt)}</div>
-        <ol class="order-list">${cur.map((j,pos)=>`
-          <li class="order-item ${marks? (marks[pos]?'right':'wrong') : ''}">
-            <span class="n">${pos+1}</span><span class="t">${esc(p.items[j])}</span>
-            <span class="mv"><button data-p="${pos}" data-d="-1" aria-label="Вище" ${pos===0?'disabled':''}>↑</button><button data-p="${pos}" data-d="1" aria-label="Нижче" ${pos===cur.length-1?'disabled':''}>↓</button></span>
-          </li>`).join("")}</ol>
-        <div id="fb"></div>
-        <div class="row"><button class="btn" id="chk">Перевірити порядок</button></div>
-      </div>`;
-    el.querySelectorAll(".mv button").forEach(b=> b.onclick = ()=>{
-      const pos=+b.dataset.p, d=+b.dataset.d, t=pos+d;
-      [cur[pos],cur[t]]=[cur[t],cur[pos]]; draw();
-      const nb = el.querySelector(`.mv button[data-p="${t}"][data-d="${d}"]`) || el.querySelector(`.mv button[data-p="${t}"]`); if(nb && !nb.disabled) nb.focus();
-    });
-    el.querySelector("#chk").onclick = check;
-  }
-  function check(){
-    const marks = cur.map((j,pos)=> j===pos);
-    const ok = marks.filter(Boolean).length;
-    checked++;
-    if(firstScore===null){ firstScore = ok; updateTracksPreview(ok); }
-    draw(marks);
-    const fb = el.querySelector("#fb");
-    if(ok===cur.length){
-      el.querySelectorAll(".mv button").forEach(b=> b.disabled=true);
-      el.querySelector("#chk").style.display="none";
-      fb.innerHTML = `<div class="feedback ok"><b>Порядок відновлено!</b>Сліди зараховано за першу перевірку: ${firstScore} з ${cur.length}.</div>
-        <div class="row" style="margin-top:12px"><button class="btn" id="nq">Далі →</button></div>`;
-      el.querySelector("#nq").onclick = ()=> done(firstScore);
-    } else {
-      onMistake(); fb.innerHTML = `<div class="feedback no"><b>На своєму місці ${ok} з ${cur.length}.</b>Червоні рядки стоять не там. Перечитай розділ у підручнику (с. 112–115).</div>`;
-    }
-  }
-  draw();
+/* ================= build slides ================= */
+function buildTask(sec,id){
+  const t=TASKS[id];sec.dataset.title=`Завдання ${t.num} — ${t.title}`;
+  const partHtml=t.parts.map((p,i)=>{
+    let inp='';
+    if(p.t==='pair')inp=`${p.p} ( <input class="inp" data-k="0" inputmode="text"> ; <input class="inp" data-k="1" inputmode="text"> )`;
+    else if(p.t==='xy')inp=`x = <input class="inp" data-k="0"> &nbsp; y = <input class="inp" data-k="1">`;
+    else if(p.t==='num')inp=`${p.p} = <input class="inp w" data-k="0"><button class="sq" title="Вставити корінь">√</button>`;
+    else if(p.t==='choice')inp=`<div class="seg">${p.o.map((o,j)=>`<button data-o="${j}">${o.replace(/\|a\|/g,'|'+V('a')+'|').replace(/\|b\|/g,'|'+V('b')+'|')}</button>`).join('')}</div>`;
+    return `<div class="part" data-i="${i}"><span class="pl">${p.l}</span><span class="pin">${inp}</span><span class="mark"></span></div>`;}).join('');
+  sec.innerHTML=`
+   <div class="hdr"><span class="chip">Підручник · ${t.page}</span><span class="chip acc">Завдання ${t.num}</span><h2>${t.title}</h2></div>
+   <div class="cols task">
+     <div class="left">
+       <div class="card stmt">${t.text}</div>
+       <div class="parts">${partHtml}</div>
+       <div class="btns">
+         <button class="btn ok ck">✅ Перевірити</button>
+         <button class="btn hn">💡 Підказка</button>
+         <button class="btn sl" title="Стане доступним після першої перевірки">📖 Розв’язання</button>
+         <button class="btn teach-only fill">👁 Відповіді</button>
+       </div>
+       <div class="fb"></div>
+       <div class="hintbox hidden">${t.hint}</div>
+     </div>
+     <div class="ws">
+       <span class="wshint">📝 Чернетка: розв’язуйте тут пером ✏️ (клавіша P) або в зошиті</span>
+       <div class="solpanel hidden"><button class="x">✕</button><h3>Розв’язання</h3>
+         ${t.sol.map(s=>`<div class="sstep">${s}</div>`).join('')}
+         <div class="btns"><button class="btn pri snx">Наступний крок ▶</button><button class="btn sall">Показати все</button></div>
+         ${t.after?`<div class="after hidden">${t.after}</div>`:''}
+       </div>
+     </div>
+   </div>`;
+  const st=S.ans[id]||(S.ans[id]={});
+  // restore + bind inputs
+  $$('.part',sec).forEach(pe=>{const i=+pe.dataset.i,p=t.parts[i];
+    $$('input',pe).forEach(inp=>{const k=+inp.dataset.k;
+      if(st[i]&&st[i][k]!=null)inp.value=st[i][k];
+      inp.addEventListener('input',()=>{(st[i]||(st[i]=[]))[k]=inp.value;pe.classList.remove('ok','bad');$('.mark',pe).textContent='';save()});
+      inp.addEventListener('keydown',e=>{if(e.key==='Enter')check()});});
+    const sq=$('.sq',pe);if(sq)sq.onclick=()=>{const inp=$('input',pe);inp.value=inp.value+'√';inp.focus();inp.dispatchEvent(new Event('input'))};
+    $$('.seg button',pe).forEach(b=>{if(st[i]&&st[i][0]==b.dataset.o)b.classList.add('sel');
+      b.onclick=()=>{$$('.seg button',pe).forEach(x=>x.classList.remove('sel'));b.classList.add('sel');st[i]=[+b.dataset.o];pe.classList.remove('ok','bad');$('.mark',pe).textContent='';save()}});
+  });
+  const fb=$('.fb',sec),res=()=>S.res[id]||(S.res[id]={ok:[],att:0,hint:false,sol:false,solEarly:false});
+  function partOk(i){const p=t.parts[i],v=st[i]||[];
+    if(p.t==='choice')return v[0]===p.a;
+    if(p.t==='num')return eq(parseNum(v[0]),p.a);
+    return eq(parseNum(v[0]),p.a[0])&&eq(parseNum(v[1]),p.a[1]);}
+  function paint(){const r=S.res[id];if(!r||!r.att)return;
+    $$('.part',sec).forEach(pe=>{const i=+pe.dataset.i,ok=r.ok[i];pe.classList.toggle('ok',ok);pe.classList.toggle('bad',!ok);$('.mark',pe).textContent=ok?'✔':'✘'});}
+  function check(){const r=res();r.att++;r.ok=t.parts.map((_,i)=>partOk(i));
+    r.okAt=r.ok.every(Boolean)?(r.okAt||r.att):r.okAt;
+    // keep a snapshot of what was answered at each attempt (for teacher)
+    r.last=JSON.parse(JSON.stringify(st));
+    paint();const n=r.ok.filter(Boolean).length;
+    if(n===t.parts.length){fb.className='fb ok';fb.textContent=r.att===1?'🎉 Бездоганно! Все правильно з першої спроби.':'🎉 Все правильно!';boom($('.ck',sec));
+      const af=$('.after',sec);if(af){af.classList.remove('hidden');openSol(true)}}
+    else{fb.className='fb bad';fb.textContent=`Правильно ${n} з ${t.parts.length}. Перевір червоні поля${r.hint?'':' або візьми підказку'}.`}
+    updSolBtn();save();}
+  $('.ck',sec).onclick=check;
+  $('.hn',sec).onclick=()=>{$('.hintbox',sec).classList.toggle('hidden');res().hint=true;save()};
+  const panel=$('.solpanel',sec),steps=$$('.sstep',sec);
+  function openSol(onlyAfter){panel.classList.remove('hidden');if(onlyAfter){steps.forEach(s=>s.classList.add('shown'))}}
+  function updSolBtn(){$('.sl',sec).disabled=!(teacher||(S.res[id]&&S.res[id].att>0))}
+  sec._upd=updSolBtn;
+  $('.sl',sec).onclick=()=>{const r=res();if(!r.sol){r.sol=true;if(!(r.ok.length&&r.ok.every(Boolean)))r.solEarly=true;save()}
+    panel.classList.remove('hidden');if(!steps.some(s=>s.classList.contains('shown')))steps[0].classList.add('shown','hl');};
+  $('.x',panel).onclick=()=>panel.classList.add('hidden');
+  $('.snx',panel).onclick=()=>{const n=steps.find(s=>!s.classList.contains('shown'));steps.forEach(s=>s.classList.remove('hl'));
+    if(n){n.classList.add('shown','hl')} if(!steps.find(s=>!s.classList.contains('shown'))){const af=$('.after',sec);af&&af.classList.remove('hidden')}};
+  $('.sall',panel).onclick=()=>{steps.forEach(s=>{s.classList.add('shown');s.classList.remove('hl')});const af=$('.after',sec);af&&af.classList.remove('hidden')};
+  $('.fill',sec).onclick=()=>{t.parts.forEach((p,i)=>{const pe=$(`.part[data-i="${i}"]`,sec);
+      if(p.t==='choice'){$$('.seg button',pe).forEach(b=>b.classList.toggle('sel',+b.dataset.o===p.a))}
+      else{const ins=$$('input',pe);const a=p.t==='num'?[p.a]:p.a;ins.forEach((inp,k)=>{const x=a[k];inp.value=Number.isInteger(x)?fmt(x).replace('−','-'):rootStr(Math.round(x*x))})}
+      pe.classList.add('ok');$('.mark',pe).textContent='✔';});
+    fb.className='fb ok';fb.textContent='👁 Показано правильні відповіді (режим вчителя). Учнівські відповіді не змінено.';};
+  paint();updSolBtn();
 }
 
-function multiPart(el, p, label, done){
-  const opts = shuffle(p.opts.map((o,j)=>({...o,j})));
-  let firstScore = null;
-  el.innerHTML = `
-    <div class="stack">
-      <div class="eyebrow" style="margin:0">${label}</div>
-      <div class="qtext">${esc(p.prompt)}</div>
-      <div class="stack" style="gap:8px">${opts.map(o=>`<label class="check" id="mc${o.j}"><input type="checkbox" id="cb${o.j}" data-j="${o.j}"><span>${esc(o.t)}</span></label>`).join("")}</div>
-      <div id="fb"></div>
-      <div class="row"><button class="btn" id="chk">Перевірити</button></div>
-    </div>`;
-  el.querySelectorAll(".check input").forEach(c=> c.onchange = ()=> c.closest(".check").classList.remove("right","wrong"));
-  el.querySelector("#chk").onclick = ()=>{
-    let ok=0;
-    opts.forEach(o=>{
-      const on = document.getElementById("cb"+o.j).checked;
-      const r = on===o.ok; if(r) ok++;
-      const box = document.getElementById("mc"+o.j);
-      box.classList.toggle("right", r && on); box.classList.toggle("wrong", !r);
-    });
-    if(firstScore===null){ firstScore = ok; updateTracksPreview(ok); }
-    const fb = el.querySelector("#fb");
-    if(ok===opts.length){
-      el.querySelectorAll(".check input").forEach(c=> c.disabled=true);
-      el.querySelector("#chk").style.display="none";
-      fb.innerHTML = `<div class="feedback ok"><b>Усі ознаки знайдено!</b>Викрадення, втечі, переслідування, таємничість, припущення й розгадування — «двигуни» пригодницького сюжету. Сліди за першу перевірку: ${firstScore} з ${opts.length}.</div>
-        <div class="row" style="margin-top:12px"><button class="btn" id="nq">Далі →</button></div>`;
-      el.querySelector("#nq").onclick = ()=> done(firstScore);
-    } else {
-      onMistake(); fb.innerHTML = `<div class="feedback no"><b>Правильних рішень ${ok} з ${opts.length}.</b>Червоним позначено помилки: щось зайве обрано або потрібне пропущено. Перечитай теорію на с. 111.</div>`;
-    }
-  };
+function buildAll(){
+  $('#today').textContent=new Date().toLocaleDateString('uk-UA',{day:'numeric',month:'long',year:'numeric'});
+  $$('[data-task]').forEach(sec=>buildTask(sec,sec.dataset.task));
+  // checklist
+  $('#checks').innerHTML=CHECKS.map((c,i)=>`<div class="chk" data-i="${i}"><span class="e">${c[0]}</span>${c[1]}<span class="box">✓</span></div>`).join('');
+  const updChecks=()=>{$$('.chk').forEach(c=>c.classList.toggle('on',!!S.checks[c.dataset.i]));
+    $('#checksDone').textContent=CHECKS.every((_,i)=>S.checks[i])?'🚀 Усе готово — стартуємо!':''};
+  $$('.chk').forEach(c=>c.onclick=()=>{S.checks[c.dataset.i]=!S.checks[c.dataset.i];updChecks();save();if(CHECKS.every((_,i)=>S.checks[i]))boom(c)});
+  updChecks();
+  // guess
+  const g=$('#guess');g.value=S.guess||'';g.oninput=()=>{S.guess=g.value;save()};
+  // reveal
+  $$('.reveal').forEach(r=>{const st=$$('.step',r);$('.nx',r).onclick=()=>{const n=st.find(s=>!s.classList.contains('shown'));n&&n.classList.add('shown')};
+    $('.rs',r).onclick=()=>st.forEach(s=>s.classList.remove('shown'))});
+  // planes
+  makePlane($('#planeHero'),{pts:{A:{x:-4,y:-2,c:'#6c5ce7',drag:true},B:{x:3,y:3,c:'#ff6b4a',drag:true}},vecs:[['A','B','#16213e',true]]});
+  makePlane($('#plane1'),{pts:{A:{x:-3,y:1,c:'#6c5ce7',drag:true},B:{x:3,y:4,c:'#ff6b4a',drag:true}},vecs:[['A','B','#16213e',true]],
+    onChange:P=>{const {A,B}=P,dx=B.x-A.x,dy=B.y-A.y,q=dx*dx+dy*dy;
+      $('#live1').innerHTML=`A(${fmt(A.x)}; ${fmt(A.y)}), B(${fmt(B.x)}; ${fmt(B.y)})<br>
+      ${V('AB')} = (<span style="color:var(--coral)">${fmt(B.x)} − ${par(A.x)}</span>; <span style="color:var(--teal)">${fmt(B.y)} − ${par(A.y)}</span>) = <b class="num">(${fmt(dx)}; ${fmt(dy)})</b><br>
+      |${V('AB')}| = √(${par(dx)}² + ${par(dy)}²) = √${q}${Number.isInteger(Math.sqrt(q))?' = <b class="num">'+Math.sqrt(q)+'</b>':' ≈ '+Math.sqrt(q).toFixed(2).replace('.',',')}`}});
+  let won=false;
+  makePlane($('#plane2'),{pts:{A:{x:-5,y:1,c:'#16213e'},B:{x:-2,y:5,c:'#16213e'},C:{x:1,y:-4,c:'#6c5ce7'},D:{x:4,y:-5,c:'#6c5ce7',drag:true}},
+    vecs:[['A','B','#16213e'],['C','D','#6c5ce7']],
+    onChange:P=>{const ab=[P.B.x-P.A.x,P.B.y-P.A.y],cd=[P.D.x-P.C.x,P.D.y-P.C.y],ok=ab[0]===cd[0]&&ab[1]===cd[1];
+      const m=Math.sqrt(ab[0]**2+ab[1]**2);
+      $('#live2').innerHTML=`${V('AB')}(${fmt(ab[0])}; ${fmt(ab[1])}), |${V('AB')}| = √(${par(ab[0])}² + ${par(ab[1])}²) = ${rootStr(ab[0]**2+ab[1]**2)}<br>
+       ${V('CD')}(${fmt(cd[0])}; ${fmt(cd[1])}) ${ok?'<b style="color:var(--ok)">= '+V('AB')+' ✔ Вектори рівні!</b>':'<span class="muted">≠ '+V('AB')+'</span>'}`;
+      if(ok&&!won){won=true;boom($('#live2'))} if(!ok)won=false;}});
+  // NMT
+  $('#nmt').innerHTML=NMT.map((q,i)=>`<div class="card nq" data-i="${i}"><span class="chip sun" style="align-self:flex-start">Питання ${i+1}</span><div class="qt">${q.q}</div>
+     ${q.o.map((o,j)=>`<button class="opt" data-j="${j}"><span class="l">${'АБВГ'[j]}</span>${o}</button>`).join('')}<div class="expl hidden">${q.e}</div></div>`).join('');
+  const paintN=i=>{const card=$(`.nq[data-i="${i}"]`),v=S.nmt[i];if(v==null)return;
+    $$('.opt',card).forEach(b=>{const j=+b.dataset.j;b.classList.toggle('right',j===NMT[i].a);b.classList.toggle('wrong',j===v&&v!==NMT[i].a)});$('.expl',card).classList.remove('hidden')};
+  $$('.nq').forEach(card=>{const i=+card.dataset.i;$$('.opt',card).forEach(b=>b.onclick=()=>{if(S.nmt[i]!=null&&!teacher)return;S.nmt[i]=+b.dataset.j;paintN(i);save();if(S.nmt[i]===NMT[i].a)boom(b)});paintN(i)});
+  // life
+  $('#life').innerHTML=LIFE.map(l=>`<div class="lc"><div class="in"><div class="f"><div class="e">${l[0]}</div><div class="n">${l[1]}</div></div><div class="b">${l[2]}</div></div></div>`).join('');
+  $$('.lc').forEach(c=>c.onclick=()=>c.classList.toggle('flip'));
+  // true/false
+  $('#tf').innerHTML=TF.map((t,i)=>`<div class="tf" data-i="${i}"><span class="s">${t[0]}<span class="muted ex2 hidden" style="display:block;font-size:14px">${t[2]}</span></span><button class="btn" data-v="1">Правда</button><button class="btn" data-v="0">Неправда</button></div>`).join('');
+  const paintT=i=>{const r=$(`.tf[data-i="${i}"]`),v=S.tf[i];if(v==null)return;const ok=(v===1)===TF[i][1];r.classList.toggle('ok',ok);r.classList.toggle('bad',!ok);
+    $$('button',r).forEach(b=>b.classList.toggle('pri',+b.dataset.v===v));const e=$('.ex2',r);if(TF[i][2])e.classList.remove('hidden')};
+  $$('.tf').forEach(r=>{const i=+r.dataset.i;$$('button',r).forEach(b=>b.onclick=()=>{S.tf[i]=+b.dataset.v;paintT(i);save()});paintT(i)});
+  // reflection
+  const E=['😕','🙂','😃','🤩'];$('#emo').innerHTML=E.map(e=>`<button>${e}</button>`).join('');
+  $$('#emo button').forEach(b=>{if(S.emo===b.textContent)b.classList.add('sel');b.onclick=()=>{$$('#emo button').forEach(x=>x.classList.remove('sel'));b.classList.add('sel');S.emo=b.textContent;save()}});
+  $$('[data-r]').forEach(t=>{t.value=S.refl[t.dataset.r]||'';t.oninput=()=>{S.refl[t.dataset.r]=t.value;save()}});
+  // report fields
+  const n=$('#sname'),c=$('#sclass');n.value=S.name||'';c.value=S.cls||'';
+  n.oninput=()=>{S.name=n.value;save();renderReport()};c.oninput=()=>{S.cls=c.value;save();renderReport()};
+  $('#copyRep').onclick=async()=>{if(!S.name.trim()){toast('Спершу впиши прізвище та ім’я');n.focus();return}
+    const txt=renderReport();try{await navigator.clipboard.writeText(txt);toast('✅ Звіт скопійовано — встав його в повідомлення вчителю')}
+    catch(e){const ta=$('#repText');ta.focus();ta.select();toast('Виділено — натисни Ctrl+C (або «Копіювати»)')}};
+  $('#resetAll').onclick=()=>openModal('Скинути весь прогрес?','Усі відповіді на цьому пристрої буде видалено.',null,()=>{try{localStorage.removeItem(KEY)}catch(e){}location.hash='';location.reload()});
+  trainerInit();
 }
 
-function matchPart(el, p, label, done){
-  const rows = shuffle(p.rows.map((r,j)=>({...r,j})));
-  let firstScore = null;
-  el.innerHTML = `
-    <div class="stack">
-      <div class="eyebrow" style="margin:0">${label}</div>
-      <div class="qtext">${esc(p.prompt)}</div>
-      <div class="stack" style="gap:8px">${rows.map(r=>`
-        <div class="match-row" id="mr${r.j}"><label class="t" for="ms${r.j}">${esc(r.t)}</label>
-          <select id="ms${r.j}"><option value="">— обери ознаку —</option>${p.choices.map((c,ci)=>`<option value="${ci}">${esc(c)}</option>`).join("")}</select>
-        </div>`).join("")}</div>
-      <div id="fb"></div>
-      <div class="row"><button class="btn" id="chk">Перевірити</button></div>
-    </div>`;
-  el.querySelectorAll("select").forEach(s=> s.onchange = ()=> s.closest(".match-row").classList.remove("right","wrong"));
-  el.querySelector("#chk").onclick = ()=>{
-    let ok=0, empty=0;
-    rows.forEach(r=>{
-      const v = document.getElementById("ms"+r.j).value;
-      if(v==="") empty++;
-      const rr = v!=="" && +v===r.a; if(rr) ok++;
-      const box = document.getElementById("mr"+r.j);
-      box.classList.toggle("right", rr); box.classList.toggle("wrong", !rr);
-    });
-    const fb = el.querySelector("#fb");
-    if(empty){ fb.innerHTML = `<div class="feedback no"><b>Заповни всі рядки.</b>Порожніх: ${empty}.</div>`; return; }
-    if(firstScore===null){ firstScore = ok; updateTracksPreview(ok); }
-    if(ok===rows.length){
-      el.querySelectorAll("select").forEach(s=> s.disabled=true);
-      el.querySelector("#chk").style.display="none";
-      fb.innerHTML = `<div class="feedback ok"><b>Чудово! Ти бачиш жанр зсередини.</b>Сліди за першу перевірку: ${firstScore} з ${rows.length}.</div>
-        <div class="row" style="margin-top:12px"><button class="btn" id="nq">Далі →</button></div>`;
-      el.querySelector("#nq").onclick = ()=> done(firstScore);
-    } else {
-      onMistake(); fb.innerHTML = `<div class="feedback no"><b>Правильно ${ok} з ${rows.length}.</b>Зміни червоні рядки й перевір ще раз.</div>`;
-    }
-  };
+/* ================= trainer ================= */
+let tr={m:'c',q:null};
+const rnd=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
+function trainerInit(){
+  $$('.modes .btn').forEach(b=>b.onclick=()=>{tr.m=b.dataset.m;newQ()});
+  $('#trCheck').onclick=trCheck;$('#trNext').onclick=newQ;newQ();trStats();
+}
+function newQ(){
+  $$('.modes .btn').forEach(b=>b.classList.toggle('pri',b.dataset.m===tr.m));
+  $('#trFb').textContent='';
+  if(tr.m==='c'){const A=[rnd(-9,9),rnd(-9,9)],B=[rnd(-9,9),rnd(-9,9)];tr.q={a:[B[0]-A[0],B[1]-A[1]]};
+    $('#trQ').innerHTML=`A(${fmt(A[0])}; ${fmt(A[1])}), B(${fmt(B[0])}; ${fmt(B[1])})`;
+    $('#trIn').innerHTML=`${V('AB')} ( <input class="inp"> ; <input class="inp"> )`;}
+  else{const T=[[3,4],[6,8],[5,12],[8,15],[1,2],[2,3],[1,3],[0,7],[9,12],[7,24]];const t=T[rnd(0,T.length-1)];
+    let v=Math.random()<.5?[t[0],t[1]]:[t[1],t[0]];v=v.map(x=>Math.random()<.5?-x:x);tr.q={a:Math.sqrt(v[0]**2+v[1]**2)};
+    $('#trQ').innerHTML=`${V('a')}(${fmt(v[0])}; ${fmt(v[1])})`;
+    $('#trIn').innerHTML=`|${V('a')}| = <input class="inp w"><button class="sq">√</button>`;
+    $('#trIn .sq').onclick=()=>{const i=$('#trIn input');i.value+='√';i.focus()};}
+  $$('#trIn input').forEach(i=>i.onkeydown=e=>{if(e.key==='Enter')trCheck()});
+  const f=$('#trIn input');if(f&&$('.slide.active')&&$('.slide.active').contains(f))f.focus();
+  tr.done=false;
+}
+function trCheck(){if(tr.done){newQ();return}
+  const ins=$$('#trIn input').map(i=>parseNum(i.value));let ok;
+  if(tr.m==='c')ok=eq(ins[0],tr.q.a[0])&&eq(ins[1],tr.q.a[1]);else ok=eq(ins[0],tr.q.a);
+  S.warm.all++;if(ok){S.warm.ok++;S.warm.streak=(S.warm.streak||0)+1;S.warm.best=Math.max(S.warm.best||0,S.warm.streak)}else S.warm.streak=0;
+  const ans=tr.m==='c'?`(${fmt(tr.q.a[0])}; ${fmt(tr.q.a[1])})`:rootStr(Math.round(tr.q.a**2));
+  $('#trFb').className='fb '+(ok?'ok':'bad');$('#trFb').textContent=ok?'✔ Правильно! Enter — наступне':'✘ Правильна відповідь: '+ans;
+  if(ok&&S.warm.streak%5===0)boom($('#trCheck'));
+  tr.done=true;trStats();save();}
+function trStats(){$('#trOk').textContent=S.warm.ok;$('#trAll').textContent=S.warm.all;$('#trStreak').textContent=S.warm.streak||0}
+
+/* ================= score & report ================= */
+function scoreData(){let got=0,tot=0;const rows=[];
+  TASK_ORDER.forEach(id=>{const t=TASKS[id],r=S.res[id],n=t.parts.length,g=r?r.ok.filter(Boolean).length:0;got+=g;tot+=n;rows.push([`Завдання ${t.num}`,g,n,r])});
+  const ng=NMT.filter((q,i)=>S.nmt[i]===q.a).length;got+=ng;tot+=NMT.length;rows.push(['НМТ',ng,NMT.length]);
+  return {got,tot,rows};}
+function updateScore(){const d=scoreData();$('#scorePill').textContent=`⭐ ${d.got} / ${d.tot}`}
+function ansStr(p,v){if(!v)return '—';if(p.t==='choice')return v[0]!=null?p.o[v[0]]:'—';if(p.t==='num')return v[0]||'—';
+  if(p.t==='xy')return `x = ${v[0]||'?'}, y = ${v[1]||'?'}`;return `(${v[0]||'?'}; ${v[1]||'?'})`;}
+const strip=h=>h.replace(/<span class="v">(.*?)<\/span>/g,'$1→').replace(/<sub>(.*?)<\/sub>/g,'$1').replace(/<br>/g,' ').replace(/<[^>]+>/g,'').replace(/&nbsp;/g,' ');
+function renderReport(){
+  const d=scoreData(),pct=d.tot?Math.round(d.got/d.tot*100):0;
+  $('#sumBox').innerHTML=`<div style="display:flex;justify-content:space-between;font-weight:800"><span>Результат</span><span>${d.got} з ${d.tot} · ${pct}%</span></div>
+   <div class="bar"><i style="width:${pct}%"></i></div>
+   <div class="res-grid">${[d.rows.slice(0,5),d.rows.slice(5)].map(g=>`<table class="res-table">${g.map(r=>`<tr><td>${r[0].replace('Завдання ','№ ')}</td><td>${(r[3]&&r[3].att)||r[0]==='НМТ'?r[1]+'/'+r[2]:'<span class="muted">—</span>'}</td></tr>`).join('')}</table>`).join('')}</div>`;
+  const L=[];
+  L.push('ЗВІТ · Геометрія · Урок 20 «Координати вектора»');
+  L.push(`Учень: ${S.name||'—'}   Клас: ${S.cls||'—'}`);
+  L.push(`Дата: ${new Date().toLocaleString('uk-UA')}`);
+  L.push(`РЕЗУЛЬТАТ: ${d.got} з ${d.tot} (${pct}%)`);
+  L.push('');
+  TASK_ORDER.forEach(id=>{const t=TASKS[id],r=S.res[id],st=r&&r.last||{};
+    const g=r?r.ok.filter(Boolean).length:0;
+    L.push(`■ Завдання ${t.num}: ${g}/${t.parts.length}`+(r?`  · спроб: ${r.att}${r.hint?' · підказка':''}${r.solEarly?' · дивився розв’язання до правильної відповіді':''}`:'  · не виконано'));
+    if(r)t.parts.forEach((p,i)=>L.push(`   ${strip(p.l)} ${p.p?strip(p.p)+' ':''}${ansStr(p,st[i])} ${r.ok[i]?'✔':'✘'}`));});
+  L.push(`■ НМТ: `+NMT.map((q,i)=>`${i+1}) ${S.nmt[i]!=null?'АБВГ'[S.nmt[i]]+(S.nmt[i]===q.a?' ✔':' ✘'):'—'}`).join('  '));
+  const tfOk=TF.filter((t,i)=>S.tf[i]!=null&&(S.tf[i]===1)===t[1]).length;
+  L.push(`■ «Правда чи ні»: ${tfOk}/${TF.length}`);
+  L.push(`■ Тренажер: ${S.warm.ok} правильних з ${S.warm.all}, найкраща серія ${S.warm.best||0}`);
+  L.push('');
+  L.push(`Припущення (проблемне питання): ${S.guess||'—'}`);
+  L.push(`Настрій: ${S.emo||'—'}`);
+  L.push(`Сподобалось: ${S.refl.liked||'—'}`);
+  L.push(`Нове: ${S.refl.learned||'—'}`);
+  L.push(`Застосування: ${S.refl.use||'—'}`);
+  const txt=L.join('\n');$('#repText').value=txt;return txt;
 }
 
-/* ---------- Іспит ---------- */
-function renderExam(){
-  if(stationsDone()<STATIONS.length){ return go("map"); }
-  const qs = shuffle(EXAM).map(it=> ({...it, order: shuffle(it.opts.map((_,j)=>j))}));
-  let k=0, score=0;
-  app.innerHTML = `
-  <section class="hero" style="padding-bottom:16px">
-    <div class="eyebrow" style="color:var(--tiger)">Фінал · без підказок і тексту</div>
-    <h2>Іспит тигролова</h2>
-    <p class="lead" style="font-size:16px">${EXAM.length} питань, одна спроба на кожне. Щоб отримати сертифікат, потрібно ${EXAM_PASS} правильних відповідей.</p>
-  </section>
-  <div class="card"><div id="task"></div></div>`;
-  const el = document.getElementById("task");
-  function show(){
-    const it = qs[k];
-    el.innerHTML = `
-      <div class="stack">
-        <div class="qhead"><div class="eyebrow" style="margin:0">Іспит</div><div class="qcount">Питання ${k+1} з ${qs.length} · правильних ${score}</div></div>
-        <div class="progress"><i style="width:${(k/qs.length)*100}%"></i></div>
-        <div class="qtext">${esc(it.q)}</div>
-        <div class="opts">${it.order.map((oi,j)=>`<button class="opt" data-oi="${oi}"><span class="k">${LETTERS[j]}</span><span>${esc(it.opts[oi])}</span></button>`).join("")}</div>
-        <div id="fb"></div>
-      </div>`;
-    el.querySelectorAll(".opt").forEach(b=> b.onclick = ()=>{
-      const oi=+b.dataset.oi, r = oi===it.a;
-      if(r) score++;
-      el.querySelectorAll(".opt").forEach(x=>{ x.disabled=true; if(+x.dataset.oi===it.a) x.classList.add("right"); });
-      if(!r) b.classList.add("wrong");
-      el.querySelector("#fb").innerHTML = `<div class="feedback ${r?'ok':'no'}"><b>${r?"Правильно!":"Помилка."}</b></div>
-        <div class="row" style="margin-top:12px"><button class="btn" id="nq">${k<qs.length-1?"Далі →":"Результат →"}</button></div>`;
-      const nq = el.querySelector("#nq"); nq.focus();
-      nq.onclick = ()=>{ k++; if(k<qs.length) show(); else result(); };
-    });
-  }
-  function result(){
-    const passed = score>=EXAM_PASS;
-    if(passed){
-      if(!S.exam || !S.exam.passed || score>S.exam.score) S.exam = {score, passed:true, date:new Date().toISOString()};
-    } else if(!S.exam || !S.exam.passed){
-      S.exam = {score, passed:false};
-    }
-    save(); updateTracks();
-    el.innerHTML = `
-      <div class="stack">
-        <div class="big-score">${score} / ${qs.length}</div>
-        <p style="font-weight:800;font-size:19px">${passed? `Іспит складено! ${g("Ти довів","Ти довела")}, що ${g("справжній тигролов","справжня тигроловка")}.` : `Поки що менше ${EXAM_PASS}. Повернися до станцій, перечитай переказ і спробуй знову — питання перемішаються.`}</p>
-        <div class="row">
-          ${passed? `<button class="btn" id="cert">Отримати сертифікат →</button>` : `<button class="btn" id="again">Спробувати ще раз</button>`}
-          <button class="btn ghost" id="mp">Карта</button>
-        </div>
-      </div>`;
-    const c = el.querySelector("#cert"); if(c) c.onclick = ()=> go("cert");
-    const a = el.querySelector("#again"); if(a) a.onclick = ()=> go("exam");
-    el.querySelector("#mp").onclick = ()=> go("map");
-  }
-  show();
-}
+/* ================= navigation ================= */
+const slides=$$('.slide');let cur=0;
+function go(n){n=Math.max(0,Math.min(slides.length-1,n));if(cur!==n||!slides[n].classList.contains('active')){slides[cur].classList.remove('active');cur=n;slides[cur].classList.add('active')}
+  $('#count').textContent=`${cur+1} / ${slides.length}`;$('#prog i').style.width=((cur+1)/slides.length*100)+'%';
+  $('#prev').disabled=cur===0;$('#next').disabled=cur===slides.length-1;
+  S.slide=cur;save();try{history.replaceState(null,'','#slide-'+(cur+1))}catch(e){}
+  if(slides[cur].querySelector('#repText'))renderReport();
+  redrawInk();renderMenu();}
+$('#prev').onclick=()=>go(cur-1);$('#next').onclick=()=>go(cur+1);
+$('#prog').onclick=e=>{const r=e.currentTarget.getBoundingClientRect();go(Math.floor((e.clientX-r.left)/r.width*slides.length))};
+function renderMenu(){const m=$('#menu');m.innerHTML=slides.map((s,i)=>{const id=s.dataset.task;let st='';
+  if(id){const r=S.res[id];if(r&&r.att)st=r.ok.every(Boolean)?'✅':'🟠'}
+  return `<button data-i="${i}" class="${i===cur?'cur':''}"><span class="n">${i+1}</span>${s.dataset.title||''}<span class="st">${st}</span></button>`}).join('');
+  $$('button',m).forEach(b=>b.onclick=()=>{go(+b.dataset.i);m.classList.add('hidden')});}
+$('#menuBtn').onclick=e=>{e.stopPropagation();$('#menu').classList.toggle('hidden')};
+document.addEventListener('click',e=>{if(!e.target.closest('#menu')&&!e.target.closest('#menuBtn'))$('#menu').classList.add('hidden')});
+document.addEventListener('keydown',e=>{
+  if(e.target.matches('input,textarea'))return;
+  if(e.key==='ArrowRight'||e.key==='PageDown'){go(cur+1);e.preventDefault()}
+  else if(e.key==='ArrowLeft'||e.key==='PageUp'){go(cur-1);e.preventDefault()}
+  else if(e.key==='p'||e.key==='P'||e.key==='з'||e.key==='З')togglePen();
+  else if(e.key==='t'||e.key==='T'||e.key==='е'||e.key==='Е')$('#timerBtn').click();
+  else if(e.key==='f'||e.key==='F'||e.key==='а'||e.key==='А')$('#fsBtn').click();
+  else if((e.ctrlKey||e.metaKey)&&e.key==='z'&&penOn){undo();e.preventDefault()}
+});
 
-/* ---------- Сертифікат ---------- */
-function rank(){
-  const r = totalTracks()/TOTAL_MAX;
-  if(r>=.9) return g("Майстер тайги","Майстриня тайги");
-  if(r>=.75) return g("Досвідчений тигролов","Досвідчена тигроловка");
-  return g("Тигролов-дослідник","Тигроловка-дослідниця");
-}
-function fmtDate(iso){
-  const d = iso? new Date(iso) : new Date();
-  const m = ["січня","лютого","березня","квітня","травня","червня","липня","серпня","вересня","жовтня","листопада","грудня"];
-  return `${d.getDate()} ${m[d.getMonth()]} ${d.getFullYear()} р.`;
-}
-async function drawCert(){
-  const W=1600,H=1130, cv=document.createElement("canvas"); cv.width=W; cv.height=H;
-  const x = cv.getContext("2d");
-  try{ await Promise.all([document.fonts.load('800 60px Unbounded'), document.fonts.load('700 30px Nunito'), document.fonts.load('400 30px Nunito')]); }catch(e){}
-  // фон
-  const bg = x.createLinearGradient(0,0,W,H); bg.addColorStop(0,"#fbf7ef"); bg.addColorStop(1,"#f1ece0");
-  x.fillStyle=bg; x.fillRect(0,0,W,H);
-  // тайга внизу
-  x.fillStyle="#173842";
-  for(let i=0;i<34;i++){
-    const cx = i*50 - 10 + (i%3)*8, h = 60 + ((i*37)%70);
-    x.beginPath(); x.moveTo(cx, H-40-h); x.lineTo(cx-34, H-40); x.lineTo(cx+34, H-40); x.closePath(); x.fill();
-  }
-  x.fillRect(0,H-42,W,42);
-  // рамка
-  x.strokeStyle="#173842"; x.lineWidth=10; x.strokeRect(36,36,W-72,H-72);
-  x.strokeStyle="#f08a24"; x.lineWidth=3; x.strokeRect(58,58,W-116,H-116);
-  // лапи
-  function paw(px,py,s,rot){ x.save(); x.translate(px,py); x.rotate(rot||0); x.scale(s,s); x.fillStyle="#f08a24";
-    const e=(a,b,rx,ry,r)=>{x.beginPath();x.ellipse(a,b,rx,ry,r||0,0,Math.PI*2);x.fill();};
-    e(0,10,14,12); e(-18,-6,6,8,-.35); e(-7,-17,6,8,-.1); e(7,-17,6,8,.1); e(18,-6,6,8,.35); x.restore(); }
-  [[150,170,.9,-.4],[230,250,.9,-.2],[1450,170,.9,.4],[1370,250,.9,.2]].forEach(a=>paw(...a));
-  x.textAlign="center"; x.fillStyle="#16262b";
-  x.font='700 26px Nunito'; x.fillStyle="#c96410";
-  x.fillText("УКРАЇНСЬКА ЛІТЕРАТУРА · 9 КЛАС", W/2, 140);
-  x.fillStyle="#16262b"; x.font='800 96px Unbounded'; x.fillText("СЕРТИФІКАТ", W/2, 250);
-  x.font='400 32px Nunito'; x.fillStyle="#4b5f63";
-  x.fillText(`засвідчує, що ${g("учень","учениця")} ${S.cls? S.cls+" класу":""}`, W/2, 320);
-  // ім'я
-  let size=76; x.font=`800 ${size}px Unbounded`;
-  while(x.measureText(S.name).width>1200 && size>40){ size-=4; x.font=`800 ${size}px Unbounded`; }
-  x.fillStyle="#16262b"; x.fillText(S.name, W/2, 420);
-  x.strokeStyle="#f08a24"; x.lineWidth=4; x.beginPath(); x.moveTo(W/2-420,448); x.lineTo(W/2+420,448); x.stroke();
-  x.font='400 32px Nunito'; x.fillStyle="#16262b";
-  x.fillText(`${g("успішно пройшов","успішно пройшла")} тренажер «Тигролови: маршрут утікача»`, W/2, 510);
-  x.fillText(`та ${g("опанував","опанувала")} тему «Автобіографічні події в сюжеті роману`, W/2, 556);
-  x.fillText(`Івана Багряного „Тигролови“. Жанрові особливості твору.`, W/2, 602);
-  x.fillText(`Пригодницький роман»`, W/2, 648);
-  // звання
-  x.font='700 28px Nunito'; x.fillStyle="#c96410"; x.fillText("ЗВАННЯ", W/2, 720);
-  x.font='800 50px Unbounded'; x.fillStyle="#173842"; x.fillText(rank(), W/2, 780);
-  // показники
-  x.font='700 30px Nunito'; x.fillStyle="#16262b";
-  x.fillText(`Тигрячих слідів: ${totalTracks()} з ${TOTAL_MAX}   ·   Іспит: ${S.exam.score} з ${EXAM.length}   ·   ${fmtDate(S.exam.date)}`, W/2, 850);
-  x.font='italic 400 26px Nunito'; x.fillStyle="#4b5f63";
-  x.fillText("«У сміливих щастя завжди є»", W/2, 905);
-  return cv.toDataURL("image/png");
-}
-async function renderCert(){
-  if(!S.exam || !S.exam.passed){ return go("map"); }
-  app.innerHTML = `
-  <section class="hero" style="padding-bottom:16px">
-    <div class="eyebrow" style="color:var(--tiger)">Маршрут завершено</div>
-    <h2>Вітаємо, ${esc(S.name)}!</h2>
-    <p class="lead" style="font-size:16px">Ти ${g("пройшов","пройшла")} шлях Григорія від ешелону до хати тигроловів. Ось твій сертифікат.</p>
-  </section>
-  <div class="card stack">
-    <div id="certBox" class="muted">Готуємо сертифікат…</div>
-    <p class="save-tip"><b>Як зберегти:</b> на комп'ютері — клацни по сертифікату правою кнопкою й обери «Зберегти зображення як…»; на телефоні — затисни зображення пальцем або зроби знімок екрана. Надішли його вчителеві.</p>
-    <div class="row">
-      <button class="btn" id="copy">Скопіювати результат текстом</button>
-      <button class="btn ghost" id="mp">Карта</button>
-      <button class="btn ghost" id="reset">Почати маршрут заново</button>
-    </div>
-    <div id="copyMsg" class="small" style="font-weight:700"></div>
-  </div>`;
-  const url = await drawCert();
-  const box = document.getElementById("certBox");
-  box.className = ""; box.innerHTML = `<img id="certImg" src="${url}" alt="Сертифікат для ${esc(S.name)}: ${esc(rank())}, іспит ${S.exam.score} з ${EXAM.length}">`;
-  document.getElementById("mp").onclick = ()=> go("map");
-  document.getElementById("copy").onclick = async ()=>{
-    const t = `${S.name}, ${S.cls} клас. Тренажер «Тигролови: маршрут утікача» пройдено. Звання: ${rank()}. Тигрячих слідів: ${totalTracks()} з ${TOTAL_MAX}. Іспит: ${S.exam.score} з ${EXAM.length}. ${fmtDate(S.exam.date)}.`;
-    const msg = document.getElementById("copyMsg");
-    try{ await navigator.clipboard.writeText(t); msg.textContent="Скопійовано! Встав у чат із вчителем."; }
-    catch(e){ msg.textContent = t; }
-  };
-  const rb = document.getElementById("reset");
-  rb.onclick = ()=>{
-    if(rb.dataset.sure){ const name=S.name, gender=S.gender, cls=S.cls; S={name,gender,cls,done:{},exam:null}; save(); go("map"); }
-    else { rb.dataset.sure="1"; rb.textContent="Точно? Сліди обнуляться — натисни ще раз"; }
-  };
-}
+/* ================= scaling ================= */
+function fit(){const vp=$('#viewport'),st=$('#stage');
+  const mobile=window.innerWidth<760;document.body.classList.toggle('m',mobile);
+  if(mobile){st.style.transform='none';if(penOn)togglePen();return}
+  const k=Math.min((vp.clientWidth-24)/1280,(vp.clientHeight-24)/720);
+  st.style.transform=`translate(-50%,-50%) scale(${k})`;}
+window.addEventListener('resize',fit);
+$('#fsBtn').onclick=()=>{try{document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen().catch(()=>toast('Повний екран недоступний у цьому вікні'))}catch(e){toast('Повний екран недоступний у цьому вікні')}};
+document.addEventListener('fullscreenchange',()=>setTimeout(fit,50));
 
-/* ===================== СНІГ ===================== */
-(function(){
-  const c = document.getElementById("snow"), ctx = c.getContext("2d");
-  const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  let flakes=[], w, h;
-  function size(){ w=c.width=innerWidth; h=c.height=innerHeight; flakes = Array.from({length: Math.min(90, Math.round(w/14))}, ()=>({x:Math.random()*w,y:Math.random()*h,r:Math.random()*2+.6,s:Math.random()*.6+.25,d:Math.random()*Math.PI*2})); }
-  function frame(){
-    ctx.clearRect(0,0,w,h); ctx.fillStyle="rgba(241,245,243,.55)";
-    flakes.forEach(f=>{ ctx.beginPath(); ctx.arc(f.x,f.y,f.r,0,Math.PI*2); ctx.fill();
-      if(!reduce){ f.y+=f.s; f.d+=.01; f.x+=Math.sin(f.d)*.3; if(f.y>h+4){f.y=-4; f.x=Math.random()*w;} } });
-    if(!reduce) requestAnimationFrame(frame);
-  }
-  addEventListener("resize", ()=>{ size(); if(reduce) frame(); });
-  size(); frame();
-})();
+/* ================= ink (pen over slides) ================= */
+const ink=$('#ink'),ctx=ink.getContext('2d');let penOn=false,penC='#e5484d',penW=4,eraser=false,strokes={},curS=null;
+const COLORS=['#e5484d','#2f80ed','#12a594','#16213e','#ffc24b'];
+function penTools(){$('#penTools').innerHTML=COLORS.map(c=>`<button class="c ${c===penC&&!eraser?'sel':''}" data-c="${c}" style="background:${c}"></button>`).join('')+
+  `<hr><button class="t ${penW===3&&!eraser?'sel':''}" data-w="3">•</button><button class="t ${penW===7&&!eraser?'sel':''}" data-w="7">●</button>
+   <button class="t ${eraser?'sel':''}" data-e="1" title="Гумка">🧽</button><hr><button class="t" data-u="1" title="Скасувати (Ctrl+Z)">↶</button><button class="t" data-x="1" title="Очистити слайд">🗑</button>`;
+  $$('#penTools button').forEach(b=>b.onclick=()=>{if(b.dataset.c){penC=b.dataset.c;eraser=false}if(b.dataset.w){penW=+b.dataset.w;eraser=false}if(b.dataset.e)eraser=true;
+    if(b.dataset.u)undo();if(b.dataset.x){strokes[cur]=[];redrawInk()}penTools()});}
+function togglePen(){if(document.body.classList.contains('m'))return;penOn=!penOn;ink.classList.toggle('on',penOn);$('#penBtn').classList.toggle('on',penOn);$('#penTools').classList.toggle('hidden',!penOn);if(penOn)penTools()}
+$('#penBtn').onclick=togglePen;
+function undo(){(strokes[cur]||[]).pop();redrawInk()}
+function pt(e){const r=ink.getBoundingClientRect();return [(e.clientX-r.left)/r.width*1280,(e.clientY-r.top)/r.height*720]}
+function drawStroke(s){if(s.p.length<1)return;ctx.save();ctx.scale(2,2);ctx.lineCap='round';ctx.lineJoin='round';
+  ctx.globalCompositeOperation=s.e?'destination-out':'source-over';ctx.strokeStyle=s.c;ctx.lineWidth=s.e?28:s.w;
+  ctx.beginPath();ctx.moveTo(...s.p[0]);if(s.p.length===1)ctx.lineTo(s.p[0][0]+.1,s.p[0][1]);
+  for(let i=1;i<s.p.length;i++){const a=s.p[i-1],b=s.p[i];ctx.quadraticCurveTo(a[0],a[1],(a[0]+b[0])/2,(a[1]+b[1])/2)}ctx.stroke();ctx.restore()}
+function redrawInk(){ctx.clearRect(0,0,2560,1440);(strokes[cur]||[]).forEach(drawStroke)}
+ink.addEventListener('pointerdown',e=>{if(!penOn)return;ink.setPointerCapture(e.pointerId);curS={c:penC,w:penW,e:eraser,p:[pt(e)]};(strokes[cur]||(strokes[cur]=[])).push(curS);redrawInk()});
+ink.addEventListener('pointermove',e=>{if(!curS)return;curS.p.push(pt(e));redrawInk()});
+ink.addEventListener('pointerup',()=>curS=null);ink.addEventListener('pointercancel',()=>curS=null);
 
-render(S.name ? "map" : "start");
+/* ================= timer ================= */
+let tLeft=180,tRun=null;
+const tShow=()=>{const d=$('#tDisp');d.textContent=String(Math.floor(tLeft/60)).padStart(2,'0')+':'+String(tLeft%60).padStart(2,'0');d.classList.toggle('end',tLeft===0)};
+$('#timerBtn').onclick=()=>{$('#timer').classList.toggle('hidden');$('#timerBtn').classList.toggle('on',!$('#timer').classList.contains('hidden'))};
+$$('#timer [data-t]').forEach(b=>b.onclick=()=>{tLeft=+b.dataset.t;tShow()});
+$('#tGo').onclick=()=>{if(tRun){clearInterval(tRun);tRun=null;$('#tGo').textContent='▶ Старт';return}
+  if(tLeft===0)tLeft=180;$('#tGo').textContent='⏸ Пауза';tRun=setInterval(()=>{tLeft=Math.max(0,tLeft-1);tShow();if(tLeft===0){clearInterval(tRun);tRun=null;$('#tGo').textContent='▶ Старт';toast('⏰ Час вийшов!')}},1000)};
+$('#tRst').onclick=()=>{clearInterval(tRun);tRun=null;tLeft=180;$('#tGo').textContent='▶ Старт';tShow()};
+$('#tX').onclick=()=>$('#timerBtn').click();
+tShow();
+
+/* ================= teacher mode ================= */
+const PIN='2026';
+function openModal(title,text,input,onOk){const m=document.createElement('div');m.className='modal';
+  m.innerHTML=`<div class="box"><h3>${title}</h3><p class="muted">${text}</p>${input?`<input class="ta" type="password" inputmode="numeric" placeholder="${input}">`:''}<p class="fb bad"></p>
+  <div class="btns"><button class="btn pri ok2">Гаразд</button><button class="btn cc">Скасувати</button></div></div>`;
+  document.body.appendChild(m);const i=$('input',m);i&&i.focus();
+  const ok=()=>{const r=onOk(i&&i.value);if(r===false){$('.fb',m).textContent='Невірний PIN';return}m.remove()};
+  $('.ok2',m).onclick=ok;i&&(i.onkeydown=e=>{if(e.key==='Enter')ok()});$('.cc',m).onclick=()=>m.remove();}
+function setTeacher(on){teacher=on;document.body.classList.toggle('teacher',on);$('#teachBtn').classList.toggle('on',on);$$('[data-task]').forEach(s=>s._upd&&s._upd());}
+$('#teachBtn').onclick=()=>{if(teacher){setTeacher(false);toast('Режим учня');return}
+  openModal('Режим вчителя','Відкриває розв’язання без спроби, кнопку «Відповіді» та скидання прогресу. Введіть PIN:','PIN',v=>{if(v!==PIN)return false;setTeacher(true);toast('👩‍🏫 Режим вчителя увімкнено')})};
+
+/* ================= start ================= */
+buildAll();fit();updateScore();
+const h=(location.hash.match(/slide-(\d+)/)||[])[1];
+go(h?+h-1:(S.slide||0));
+window.addEventListener('hashchange',()=>{const m=(location.hash.match(/slide-(\d+)/)||[])[1];if(m&&+m-1!==cur)go(+m-1)});
 </script>
 </body>
 </html>
